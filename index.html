@@ -363,19 +363,30 @@ function getBadgeClass(s){return s.startsWith('indian')?'in':s==='american'?'us'
 function safeFilename(s){return s.replace(/[^a-zA-Z0-9_\-]/g,'_').replace(/_+/g,'_').slice(0,60);}
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
  
+let _lastResumeData = null;
+let _lastResumeFile = '';
+let _lastCLData = null;
+let _lastCLFile = '';
+let _lastJobTitle = '';
+ 
 function renderResults(data) {
   let html='';
   const sl=getStyleLabel(selectedStyle);
   if (data.name||data.summary||data.objective) {
     const fname=safeFilename((data.job_title||'resume')+'_'+selectedStyle+'_resume');
+    _lastResumeData = data;
+    _lastResumeFile = fname;
     const preview=buildPreview(data);
-    html+=`<div class="card"><div class="result-header"><span class="result-title">Resume</span><button class="btn-copy" onclick="copyPreview('resume-preview',this)">Copy text</button></div><span class="style-tag">${sl}</span><span class="format-tag">Formatted PDF</span><div class="result-body" id="resume-preview">${preview}</div><button class="btn-secondary" onclick='downloadResumePDF(${JSON.stringify(JSON.stringify(data))},"${esc(fname)}")'>Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
+    html+=`<div class="card"><div class="result-header"><span class="result-title">Resume</span><button class="btn-copy" onclick="copyPreview('resume-preview',this)">Copy text</button></div><span class="style-tag">${sl}</span><span class="format-tag">Formatted PDF</span><div class="result-body" id="resume-preview">${preview}</div><button class="btn-secondary" onclick="triggerResumeDownload()">Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
   }
   if (data.cover_letter) {
     const cl=data.cover_letter;
     const fname=safeFilename((data.job_title||'cover_letter')+'_cover_letter');
+    _lastCLData = cl;
+    _lastCLFile = fname;
+    _lastJobTitle = data.job_title||'';
     const clPreview=(cl.paragraphs||[]).join('\n\n');
-    html+=`<div class="card" style="margin-top:0"><div class="result-header"><span class="result-title">Cover letter</span><button class="btn-copy" onclick="copyPreview('cl-preview',this)">Copy text</button></div><span class="format-tag">Formatted PDF</span><div class="result-body" id="cl-preview">${esc(clPreview)}</div><button class="btn-secondary" onclick='downloadCoverLetterPDF(${JSON.stringify(JSON.stringify(cl))},"${esc(fname)}","${esc(data.job_title||'')}")'>Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
+    html+=`<div class="card" style="margin-top:0"><div class="result-header"><span class="result-title">Cover letter</span><button class="btn-copy" onclick="copyPreview('cl-preview',this)">Copy text</button></div><span class="format-tag">Formatted PDF</span><div class="result-body" id="cl-preview">${esc(clPreview)}</div><button class="btn-secondary" onclick="triggerCLDownload()">Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
   }
   if (!html) html='<div class="status-msg">No content returned. Please try again.</div>';
   document.getElementById('results').innerHTML=html;
@@ -542,6 +553,17 @@ function downloadCoverLetterPDF(clStr,filename,jobTitle){
   y+=10;doc.text('Yours sincerely,',ML,y);y+=30;
   doc.setFont('helvetica','bold');doc.text(cl.sender_name||'',ML,y);
   doc.save(filename+'.pdf'); recordDownload(cl.role||jobTitle,'cover_letter',selectedStyle);
+}
+ 
+ 
+function triggerResumeDownload() {
+  if (!_lastResumeData) { alert('No resume data. Please generate first.'); return; }
+  downloadResumePDF(JSON.stringify(_lastResumeData), _lastResumeFile);
+}
+ 
+function triggerCLDownload() {
+  if (!_lastCLData) { alert('No cover letter data. Please generate first.'); return; }
+  downloadCoverLetterPDF(JSON.stringify(_lastCLData), _lastCLFile, _lastJobTitle);
 }
  
 function recordDownload(jobTitle,docType,style){
