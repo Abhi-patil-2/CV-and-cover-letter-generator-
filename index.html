@@ -206,7 +206,7 @@
 <script>
 const OR_KEY = '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';
 const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OR_MODEL = 'anthropic/claude-sonnet-4-5';
+const OR_MODEL = 'google/gemini-flash-1.5';
  
 async function callAI(prompt, maxTokens) {
   const resp = await fetch(OR_URL, {
@@ -224,7 +224,11 @@ async function callAI(prompt, maxTokens) {
     })
   });
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || 'API error');
+  if (!resp.ok) {
+    const msg = data.error?.message || JSON.stringify(data);
+    throw new Error(msg);
+  }
+  if (!data.choices || !data.choices[0]) throw new Error('Empty response from AI: ' + JSON.stringify(data));
   return data.choices[0].message.content;
 }
  
