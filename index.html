@@ -204,23 +204,16 @@
 </div>
  
 <script>
-const OR_KEY = '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';
-const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OR_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
+const GEMINI_KEY = 'AIzaSyCqzmVW6EK4uOXTXo_Vl9zvI4p4i28Vjp0';
  
 async function callAI(prompt, maxTokens) {
-  const resp = await fetch(OR_URL, {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
+  const resp = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + OR_KEY,
-      'HTTP-Referer': 'https://abhi-patil-2.github.io',
-      'X-Title': 'Career Doc Generator'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: OR_MODEL,
-      max_tokens: maxTokens || 4000,
-      messages: [{ role: 'user', content: prompt }]
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: maxTokens || 4000 }
     })
   });
   const data = await resp.json();
@@ -228,8 +221,8 @@ async function callAI(prompt, maxTokens) {
     const msg = data.error?.message || JSON.stringify(data);
     throw new Error(msg);
   }
-  if (!data.choices || !data.choices[0]) throw new Error('Empty response from AI: ' + JSON.stringify(data));
-  return data.choices[0].message.content;
+  if (!data.candidates || !data.candidates[0]) throw new Error('Empty response: ' + JSON.stringify(data));
+  return data.candidates[0].content.parts[0].text;
 }
  
 let selectedStyle = 'european';
