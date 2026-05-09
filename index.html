@@ -349,8 +349,27 @@ Tailor ALL content to match the job description keywords.`;
   try {
     const raw = await callAI(prompt, 4000);
     let parsed;
-    try { parsed=JSON.parse(raw); }
-    catch(e) { const m=raw.match(/\{[\s\S]*\}/); try{parsed=m?JSON.parse(m[0]):{}}catch(e2){parsed={};} }
+    try {
+      // Strip markdown code fences if present
+      let cleaned = raw.trim();
+      cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch(e1) {
+        // Try to extract JSON object
+        const m = cleaned.match(/\{[\s\S]*\}/);
+        if (m) {
+          try { parsed = JSON.parse(m[0]); } catch(e2) { parsed = {}; }
+        } else {
+          parsed = {};
+        }
+      }
+    } catch(e) { parsed = {}; }
+    if (!parsed || Object.keys(parsed).length === 0) {
+      document.getElementById('results').innerHTML='<div class="status-msg" style="color:#a32d2d">Could not parse AI response. Please try again.</div>';
+      btn.disabled=false; btn.textContent='Generate documents';
+      return;
+    }
     renderResults(parsed);
   } catch(e) {
     document.getElementById('results').innerHTML=`<div class="status-msg" style="color:#a32d2d">Error: ${e.message}. Please try again.</div>`;
