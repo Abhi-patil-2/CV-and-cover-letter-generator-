@@ -7,316 +7,87 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg2: #f5f5f3;
-    --bg3: #ebebea;
-    --text: #1a1a18;
-    --text2: #6b6b67;
-    --text3: #9b9b97;
-    --border: rgba(0,0,0,0.12);
-    --border2: rgba(0,0,0,0.22);
-    --accent: #1a1a18;
-    --accent-fg: #ffffff;
-    --info-bg: #e6f1fb;
-    --info-text: #0c447c;
-    --info-border: #b5d4f4;
-    --radius: 8px;
-    --radius-lg: 12px;
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #ebebea;
+    --text: #1a1a18; --text2: #6b6b67; --text3: #9b9b97;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --accent: #1a1a18; --accent-fg: #ffffff;
+    --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: #b5d4f4;
+    --success-bg: #eaf3de; --success-text: #3b6d11; --success-border: #97c459;
+    --warn-bg: #faeeda; --warn-text: #854f0b; --warn-border: #ef9f27;
+    --radius: 8px; --radius-lg: 12px;
   }
-
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1a;
-      --bg2: #272725;
-      --bg3: #313130;
-      --text: #f0efeb;
-      --text2: #a8a8a4;
-      --text3: #6b6b67;
-      --border: rgba(255,255,255,0.1);
-      --border2: rgba(255,255,255,0.2);
-      --accent: #f0efeb;
-      --accent-fg: #1c1c1a;
-      --info-bg: #042c53;
-      --info-text: #b5d4f4;
-      --info-border: #185fa5;
+      --bg: #1c1c1a; --bg2: #272725; --bg3: #313130;
+      --text: #f0efeb; --text2: #a8a8a4; --text3: #6b6b67;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --accent: #f0efeb; --accent-fg: #1c1c1a;
+      --info-bg: #042c53; --info-text: #b5d4f4; --info-border: #185fa5;
+      --success-bg: #173404; --success-text: #c0dd97; --success-border: #3b6d11;
+      --warn-bg: #412402; --warn-text: #fac775; --warn-border: #854f0b;
     }
   }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg2);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 0 0 3rem;
-  }
-
-  .topbar {
-    background: var(--bg);
-    border-bottom: 0.5px solid var(--border);
-    padding: 1rem 1.25rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .topbar-inner {
-    max-width: 520px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; padding-bottom: 3rem; }
+  .topbar { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 1rem 1.25rem; position: sticky; top: 0; z-index: 10; }
+  .topbar-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
   .topbar h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
   .topbar p { font-size: 12px; color: var(--text2); margin-top: 1px; }
-
-  .badge {
-    font-size: 10px;
-    font-weight: 600;
-    background: var(--info-bg);
-    color: var(--info-text);
-    border: 0.5px solid var(--info-border);
-    padding: 3px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.04em;
-  }
-
-  .main {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 1.25rem 1rem 0;
-  }
-
-  .tabs {
-    display: flex;
-    background: var(--bg3);
-    border-radius: var(--radius-lg);
-    padding: 3px;
-    margin-bottom: 1.25rem;
-  }
-
-  .tab {
-    flex: 1;
-    padding: 8px 0;
-    font-size: 13px;
-    font-weight: 500;
-    border: none;
-    border-radius: 9px;
-    background: transparent;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .tab.active {
-    background: var(--bg);
-    color: var(--text);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-
-  .card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-  }
-
-  .field-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 7px;
-    display: block;
-  }
-
-  textarea, input[type="text"] {
-    width: 100%;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: vertical;
-    color: var(--text);
-    background: var(--bg);
-    line-height: 1.55;
-    transition: border-color 0.15s;
-  }
-
-  textarea:focus, input:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-
-  .option-row {
-    display: flex;
-    gap: 8px;
-    margin: 1rem 0;
-  }
-
-  .option-btn {
-    flex: 1;
-    padding: 10px 6px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .option-btn small {
-    display: block;
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--text3);
-    margin-top: 2px;
-  }
-
-  .option-btn.selected {
-    background: var(--info-bg);
-    color: var(--info-text);
-    border-color: var(--info-border);
-  }
-
+  .badge { font-size: 10px; font-weight: 600; background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); padding: 3px 8px; border-radius: 20px; letter-spacing: 0.04em; }
+  .main { max-width: 560px; margin: 0 auto; padding: 1.25rem 1rem 0; }
+  .tabs { display: flex; background: var(--bg3); border-radius: var(--radius-lg); padding: 3px; margin-bottom: 1.25rem; gap: 2px; }
+  .tab { flex: 1; padding: 8px 4px; font-size: 12px; font-weight: 500; border: none; border-radius: 9px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .tab.active { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; display: block; }
+  textarea, input[type="text"], select { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; color: var(--text); background: var(--bg); line-height: 1.55; transition: border-color 0.15s; }
+  select { resize: none; cursor: pointer; }
+  textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .option-row { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+  .option-btn { flex: 1; min-width: 80px; padding: 9px 6px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text2); cursor: pointer; transition: all 0.15s; text-align: center; line-height: 1.3; }
+  .option-btn small { display: block; font-size: 10px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+  .option-btn.selected { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
   .option-btn.selected small { color: var(--info-text); opacity: 0.75; }
-
-  .btn-primary {
-    width: 100%;
-    padding: 13px;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: var(--accent-fg);
-    cursor: pointer;
-    transition: opacity 0.15s;
-    letter-spacing: -0.01em;
-  }
-
+  .btn-primary { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--accent); color: var(--accent-fg); cursor: pointer; transition: opacity 0.15s; letter-spacing: -0.01em; }
   .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
   .btn-primary:hover:not(:disabled) { opacity: 0.85; }
-
-  .btn-secondary {
-    width: 100%;
-    padding: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.15s;
-    margin-top: 10px;
-  }
-
+  .btn-secondary { width: 100%; padding: 10px; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; color: var(--text); cursor: pointer; transition: background 0.15s; margin-top: 10px; }
   .btn-secondary:hover { background: var(--bg2); }
-
-  .btn-copy {
-    font-size: 12px;
-    padding: 4px 10px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--text2);
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-  }
-
+  .btn-copy { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; color: var(--text2); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
   .btn-copy:hover { background: var(--bg2); }
-
-  .result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
+  .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .result-title { font-size: 14px; font-weight: 600; }
-
-  .result-body {
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--text);
-    white-space: pre-wrap;
-    max-height: 300px;
-    overflow-y: auto;
-    background: var(--bg2);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    border: 0.5px solid var(--border);
-    margin-bottom: 10px;
-  }
-
-  .style-tag {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    background: var(--info-bg);
-    color: var(--info-text);
-    border: 0.5px solid var(--info-border);
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-bottom: 8px;
-    letter-spacing: 0.04em;
-  }
-
-  .status-msg {
-    font-size: 13px;
-    color: var(--text2);
-    text-align: center;
-    padding: 1.5rem 0;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 15px;
-    height: 15px;
-    border: 2px solid var(--border2);
-    border-top-color: var(--text);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 6px;
-  }
-
+  .result-body { font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; border: 0.5px solid var(--border); margin-bottom: 10px; }
+  .style-tag { display: inline-block; font-size: 10px; font-weight: 600; background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); padding: 2px 8px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.04em; }
+  .status-msg { font-size: 13px; color: var(--text2); text-align: center; padding: 1.5rem 0; }
+  .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--border2); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .tip {
-    font-size: 12px;
-    color: var(--text3);
-    margin-top: 7px;
-    line-height: 1.5;
-  }
-
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .divider {
-    border: none;
-    border-top: 0.5px solid var(--border);
-    margin: 14px 0;
-  }
+  .tip { font-size: 12px; color: var(--text3); margin-top: 7px; line-height: 1.5; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
+  .lang-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+  .lang-row select { flex: 1; }
+  .detect-btn { padding: 10px 14px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text2); cursor: pointer; white-space: nowrap; transition: background 0.15s; flex-shrink: 0; }
+  .detect-btn:hover { background: var(--bg2); }
+  .hist-item { padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .hist-job { font-size: 13px; font-weight: 500; color: var(--text); }
+  .hist-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .hist-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .hist-badge.eu { background: var(--info-bg); color: var(--info-text); }
+  .hist-badge.us { background: var(--success-bg); color: var(--success-text); }
+  .hist-badge.in { background: var(--warn-bg); color: var(--warn-text); }
+  .stat-row { display: flex; gap: 10px; margin-bottom: 1rem; }
+  .stat-box { flex: 1; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 600; color: var(--text); }
+  .stat-label { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .clear-btn { font-size: 12px; color: var(--text3); background: none; border: none; cursor: pointer; text-decoration: underline; }
+  .empty-hist { text-align: center; padding: 2rem 0; color: var(--text3); font-size: 13px; }
 </style>
 </head>
 <body>
-
+ 
 <div class="topbar">
   <div class="topbar-inner">
     <div>
@@ -326,39 +97,74 @@
     <span class="badge">AI Powered</span>
   </div>
 </div>
-
+ 
 <div class="main">
-
+ 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('generate')">Generate</button>
-    <button class="tab" onclick="switchTab('profile')">My Profile</button>
+    <button class="tab" onclick="switchTab('profile')">Profile</button>
+    <button class="tab" onclick="switchTab('history')">History</button>
     <button class="tab" onclick="switchTab('help')">Help</button>
   </div>
-
+ 
   <!-- GENERATE TAB -->
   <div id="tab-generate">
     <div class="card">
+      <label class="field-label">Job description language</label>
+      <div class="lang-row">
+        <select id="jd-lang">
+          <option value="auto">Auto-detect language</option>
+          <option value="english">English</option>
+          <option value="german">German (Deutsch)</option>
+          <option value="french">French (Francais)</option>
+          <option value="spanish">Spanish (Espanol)</option>
+          <option value="italian">Italian (Italiano)</option>
+          <option value="dutch">Dutch (Nederlands)</option>
+          <option value="portuguese">Portuguese</option>
+          <option value="arabic">Arabic</option>
+          <option value="hindi">Hindi</option>
+          <option value="japanese">Japanese</option>
+          <option value="chinese">Chinese (Mandarin)</option>
+        </select>
+        <button class="detect-btn" onclick="detectLanguage()">Detect</button>
+      </div>
+      <div id="detect-result" style="font-size:12px;color:var(--info-text);margin-bottom:8px;display:none"></div>
+ 
       <label class="field-label">Job description</label>
-      <textarea id="job-desc" rows="8" placeholder="Paste the full job description here — title, responsibilities, requirements, company info..."></textarea>
-      <p class="tip">The more detail, the better the tailoring.</p>
+      <textarea id="job-desc" rows="8" placeholder="Paste the full job description here — in any language. Your documents will always be generated in English."></textarea>
+      <p class="tip">Supports German, French, Spanish, Arabic, Hindi, Japanese, Chinese and more.</p>
     </div>
-
+ 
     <div class="card">
-      <div class="section-title">Resume style</div>
-      <p class="tip" style="margin-bottom:10px">Choose based on where you're applying.</p>
+      <div class="section-title">Resume / CV style</div>
+      <p class="tip" style="margin-bottom:10px">Pick based on where you are applying.</p>
+ 
       <div class="option-row">
         <button class="option-btn selected" id="btn-eu" onclick="selectStyle('european')">
           European
-          <small>Europass-inspired, clean &amp; formal</small>
+          <small>Europass, formal</small>
         </button>
         <button class="option-btn" id="btn-us" onclick="selectStyle('american')">
           American
-          <small>ATS-optimized, achievement-first</small>
+          <small>ATS-optimized</small>
+        </button>
+        <button class="option-btn" id="btn-in-gen" onclick="selectStyle('indian-general')">
+          Indian
+          <small>General / Any</small>
         </button>
       </div>
-
+      <div class="option-row">
+        <button class="option-btn" id="btn-in-it" onclick="selectStyle('indian-it')">
+          Indian IT
+          <small>Tech / Software</small>
+        </button>
+        <button class="option-btn" id="btn-in-mba" onclick="selectStyle('indian-mba')">
+          Indian MBA
+          <small>Management</small>
+        </button>
+      </div>
+ 
       <hr class="divider">
-
       <div class="section-title">What to generate</div>
       <div class="option-row">
         <button class="option-btn selected" id="btn-both" onclick="selectDoc('both')">Both</button>
@@ -366,86 +172,124 @@
         <button class="option-btn" id="btn-cl" onclick="selectDoc('cover')">Cover letter only</button>
       </div>
     </div>
-
+ 
     <button class="btn-primary" id="gen-btn" onclick="generate()">Generate documents</button>
-
     <div id="results" style="margin-top:1rem"></div>
   </div>
-
+ 
   <!-- PROFILE TAB -->
   <div id="tab-profile" style="display:none">
     <div class="card">
       <label class="field-label">Your profile / existing resume</label>
-      <textarea id="profile-text" rows="18" placeholder="Paste your full resume or profile here.&#10;&#10;Include:&#10;• Full name &amp; contact details&#10;• Work experience (company, role, dates, achievements)&#10;• Education&#10;• Skills &amp; tools&#10;• Languages&#10;• Certifications&#10;• Any other relevant info"></textarea>
-      <p class="tip">This is stored in your browser — never sent anywhere except to generate documents.</p>
+      <textarea id="profile-text" rows="18" placeholder="Paste your full resume or profile here.&#10;&#10;Include:&#10;- Full name and contact details&#10;- Work experience (company, role, dates, achievements with numbers)&#10;- Education (degree, college, year, CGPA/%)&#10;- Skills and tools&#10;- Languages known&#10;- Certifications&#10;- Projects&#10;- LinkedIn / GitHub / Portfolio links"></textarea>
+      <p class="tip">Stored only on your device. Never shared except when generating documents.</p>
     </div>
     <button class="btn-primary" onclick="saveProfile()">Save profile</button>
     <div id="profile-saved" class="status-msg" style="display:none">Profile saved successfully.</div>
   </div>
-
+ 
+  <!-- HISTORY TAB -->
+  <div id="tab-history" style="display:none">
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Total downloads</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-month">0</div>
+        <div class="stat-label">This month</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-top">—</div>
+        <div class="stat-label">Top format</div>
+      </div>
+    </div>
+ 
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="section-title">Download history</div>
+        <button class="clear-btn" onclick="clearHistory()">Clear all</button>
+      </div>
+      <div id="history-list">
+        <div class="empty-hist">No downloads yet. Generate your first document to start tracking.</div>
+      </div>
+    </div>
+  </div>
+ 
   <!-- HELP TAB -->
   <div id="tab-help" style="display:none">
     <div class="card">
       <div class="section-title">How to use</div>
       <hr class="divider">
-      <p style="font-size:13px;line-height:1.8;color:var(--text2)">
+      <p style="font-size:13px;line-height:1.9;color:var(--text2)">
         <strong style="color:var(--text)">Step 1 — Add your profile</strong><br>
-        Go to "My Profile" and paste your resume or bio. Save it once — it stays on your device.<br><br>
+        Go to Profile tab, paste your resume or bio, tap Save. Done once, remembered always.<br><br>
         <strong style="color:var(--text)">Step 2 — Paste the job description</strong><br>
-        Copy the full job posting and paste it in the Generate tab.<br><br>
-        <strong style="color:var(--text)">Step 3 — Pick your style</strong><br>
-        European for EU companies, American for US/international roles. Both is fine too.<br><br>
-        <strong style="color:var(--text)">Step 4 — Generate &amp; download</strong><br>
-        Tap "Generate documents" and download each as a PDF.
+        Paste in any language. Hit Detect or pick the language manually.<br><br>
+        <strong style="color:var(--text)">Step 3 — Pick your CV style</strong><br>
+        European for EU roles, American for US/global, Indian variants for Indian companies.<br><br>
+        <strong style="color:var(--text)">Step 4 — Generate and download</strong><br>
+        Tap Generate. Download each document as a named PDF. History is tracked automatically.
       </p>
     </div>
     <div class="card">
-      <div class="section-title">Tips for best results</div>
+      <div class="section-title">CV style guide</div>
       <hr class="divider">
-      <p style="font-size:13px;line-height:1.8;color:var(--text2)">
-        • Include achievements with numbers in your profile (e.g. "increased sales by 30%")<br>
-        • Paste the complete job description including company description<br>
-        • You can regenerate multiple times — each output is different<br>
-        • Profile data stays only on your device, never shared
+      <p style="font-size:13px;line-height:1.9;color:var(--text2)">
+        <strong style="color:var(--text)">European</strong> — Europass-inspired. Formal, dates on left, clean layout. Best for Germany, France, Netherlands, Scandinavia.<br><br>
+        <strong style="color:var(--text)">American</strong> — ATS keyword-heavy. Achievement bullets with metrics, no photo or DOB. Best for US, Canada, UK startups.<br><br>
+        <strong style="color:var(--text)">Indian General</strong> — Career objective, personal details, declaration section. Works across sectors in India.<br><br>
+        <strong style="color:var(--text)">Indian IT</strong> — Technical skills matrix upfront, project details with tech stack, certifications. Best for TCS, Infosys, Wipro, startups.<br><br>
+        <strong style="color:var(--text)">Indian MBA</strong> — Education prominent, leadership roles, internships, extra-curriculars. Best for management and consulting roles.
       </p>
     </div>
     <div class="card">
-      <div class="section-title">Privacy</div>
+      <div class="section-title">Language support</div>
       <hr class="divider">
       <p style="font-size:13px;line-height:1.7;color:var(--text2)">
-        Your profile is stored in your browser's localStorage — it never leaves your device except when you click "Generate", at which point it is sent to the Anthropic AI API to produce your documents.
+        Paste a JD in any language — German, French, Spanish, Arabic, Hindi, Japanese, Chinese and more. Tap Detect to auto-identify the language, or select manually from the dropdown. All output documents are always generated in English.
       </p>
     </div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
 let selectedStyle = 'european';
 let selectedDoc = 'both';
-
+ 
+const styleIds = {
+  'european': 'btn-eu',
+  'american': 'btn-us',
+  'indian-general': 'btn-in-gen',
+  'indian-it': 'btn-in-it',
+  'indian-mba': 'btn-in-mba'
+};
+ 
 function switchTab(tab) {
-  ['generate','profile','help'].forEach(t => {
+  ['generate','profile','history','help'].forEach(t => {
     document.getElementById('tab-' + t).style.display = t === tab ? '' : 'none';
   });
   document.querySelectorAll('.tab').forEach((el, i) => {
-    el.classList.toggle('active', ['generate','profile','help'][i] === tab);
+    el.classList.toggle('active', ['generate','profile','history','help'][i] === tab);
   });
+  if (tab === 'history') renderHistory();
 }
-
+ 
 function selectStyle(s) {
   selectedStyle = s;
-  document.getElementById('btn-eu').classList.toggle('selected', s === 'european');
-  document.getElementById('btn-us').classList.toggle('selected', s === 'american');
+  Object.entries(styleIds).forEach(([k, id]) => {
+    document.getElementById(id).classList.toggle('selected', k === s);
+  });
 }
-
+ 
 function selectDoc(d) {
   selectedDoc = d;
   ['btn-both','btn-cv','btn-cl'].forEach(id => document.getElementById(id).classList.remove('selected'));
   const map = { both: 'btn-both', cv: 'btn-cv', cover: 'btn-cl' };
   document.getElementById(map[d]).classList.add('selected');
 }
-
+ 
 function saveProfile() {
   const val = document.getElementById('profile-text').value.trim();
   if (!val) return;
@@ -454,55 +298,92 @@ function saveProfile() {
   s.style.display = '';
   setTimeout(() => s.style.display = 'none', 2500);
 }
-
+ 
 window.onload = () => {
   const saved = localStorage.getItem('career_profile');
   if (saved) document.getElementById('profile-text').value = saved;
 };
-
+ 
+async function detectLanguage() {
+  const jd = document.getElementById('job-desc').value.trim();
+  if (!jd) { alert('Paste a job description first.'); return; }
+  const el = document.getElementById('detect-result');
+  el.style.display = '';
+  el.textContent = 'Detecting...';
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 60,
+        messages: [{ role: 'user', content: 'What language is this text written in? Reply with ONLY the language name in English, nothing else.\n\n' + jd.slice(0, 500) }]
+      })
+    });
+    const data = await resp.json();
+    const lang = (data.content.find(b => b.type === 'text')?.text || '').trim();
+    el.textContent = 'Detected: ' + lang;
+    const sel = document.getElementById('jd-lang');
+    const match = Array.from(sel.options).find(o => o.text.toLowerCase().includes(lang.toLowerCase()));
+    if (match) sel.value = match.value;
+  } catch(e) {
+    el.textContent = 'Could not detect. Please select manually.';
+  }
+}
+ 
+function getStylePrompt() {
+  const s = selectedStyle;
+  if (s === 'european') return 'European Europass-inspired format: Personal Information at top (name, contact, DOB optional, nationality), Profile Summary (3 lines), Work Experience (reverse chronological, dates on left, bullet points), Education, Key Skills, Languages, Certifications. Formal tone. No graphics or photos in text.';
+  if (s === 'american') return 'American ATS-optimized format: Professional Summary (2-3 lines) at top, Core Competencies section with keywords matching the JD, Work Experience with achievement-focused bullet points using metrics (increased X by Y%, reduced Z by W%), Education, Certifications. No photo, no DOB, no full address. Heavily keyword-optimized for ATS scanning.';
+  if (s === 'indian-general') return 'Indian General CV format (high ATS pass rate): Career Objective (2-3 lines tailored to the role), Personal Details (name, phone, email, DOB, nationality, languages known, current address), Work Experience (company name, designation, dates, key responsibilities as bullet points), Education (degree, institution, year, marks/CGPA), Technical and Soft Skills, Achievements and Awards, Hobbies and Interests, Declaration ("I hereby declare that the above information is true and correct to the best of my knowledge and belief."). Professional, detailed, comprehensive.';
+  if (s === 'indian-it') return 'Indian IT/Software Resume (maximum ATS pass rate): Professional Summary (3 lines, tech-focused), Technical Skills matrix organized as: Programming Languages | Frameworks and Libraries | Databases | Tools and Platforms | Cloud | Operating Systems. Work Experience (company, designation, dates — bullet points emphasizing tech stack used, features built, performance improvements with numbers, team size). Project Details section (for each project: Title, Tech Stack, Role, Duration, Description, Key Achievements). Education (degree, college, year, CGPA). Certifications (AWS/Azure/GCP/Oracle etc). Key Achievements. Use strong action verbs: Architected, Developed, Optimized, Deployed, Migrated, Integrated. Include ATS keywords: Agile, Scrum, SDLC, REST API, Microservices, CI/CD, Git.';
+  if (s === 'indian-mba') return 'Indian MBA/Management CV format: Career Objective tailored to management role. Education section PROMINENT near top (MBA: institute, specialization, CGPA, batch year; Graduation: degree, college, year, marks). Work Experience (designation, company, dates — bullet points on leadership, P&L ownership, revenue/cost impact with numbers, team management, cross-functional collaboration). Internships and Projects (company, duration, problem statement, approach, outcome with metrics). Leadership and Extra-curriculars (college positions of responsibility, competitions, clubs). Key Skills (Excel, PowerPoint, financial modeling, stakeholder management, etc). Certifications. Achievements and Awards. Emphasis on leadership, strategy, impact, and stakeholder management throughout.';
+  return '';
+}
+ 
 async function generate() {
   const jd = document.getElementById('job-desc').value.trim();
   const profile = document.getElementById('profile-text').value.trim() || localStorage.getItem('career_profile') || '';
-
+  const lang = document.getElementById('jd-lang').value;
+ 
   if (!jd) { alert('Please paste a job description first.'); return; }
-  if (!profile) {
-    alert('Please add your profile in the "My Profile" tab first.');
-    switchTab('profile');
-    return;
-  }
-
+  if (!profile) { alert('Please add your profile in the Profile tab first.'); switchTab('profile'); return; }
+ 
   const btn = document.getElementById('gen-btn');
   btn.disabled = true;
   btn.textContent = 'Generating...';
-  document.getElementById('results').innerHTML = '<div class="status-msg"><span class="spinner"></span>Analysing job description and crafting your documents — this takes 15–30 seconds...</div>';
-
-  const styleDesc = selectedStyle === 'european'
-    ? 'European style (Europass-inspired): Personal Information section first, then Work Experience with dates on the left, Education, Key Skills, Languages, Certifications. Formal tone, concise bullet points, clean structure.'
-    : 'American ATS-optimized style: Start with a strong 2-3 line professional summary, then Skills section with keywords, then Work Experience with achievement-focused bullet points including metrics and numbers, then Education. Pack in keywords from the job description throughout.';
-
+  document.getElementById('results').innerHTML = '<div class="status-msg"><span class="spinner"></span>Analysing job description and crafting your documents. This takes 20-40 seconds...</div>';
+ 
+  const langNote = lang === 'auto'
+    ? 'The job description may be in any language. Detect the language, fully understand the requirements, then generate all output documents in English.'
+    : lang === 'english'
+    ? ''
+    : `The job description is written in ${lang}. Translate and fully understand it, then generate all output documents in English.`;
+ 
   const docRequest = selectedDoc === 'both'
-    ? 'Generate both: a full resume AND a cover letter.'
+    ? 'Generate BOTH a full resume AND a cover letter.'
     : selectedDoc === 'cv'
-    ? 'Generate a full resume only.'
-    : 'Generate a cover letter only.';
-
-  const prompt = `You are an expert career consultant and professional resume writer. Given the candidate profile and job description below, produce highly tailored application documents.
-
+    ? 'Generate a full resume only (no cover letter).'
+    : 'Generate a cover letter only (no resume).';
+ 
+  const prompt = `You are an expert career consultant and professional resume writer with deep knowledge of ATS systems, hiring practices in India, Europe, and USA.
+ 
 CANDIDATE PROFILE:
 ${profile}
-
+ 
 JOB DESCRIPTION:
 ${jd}
-
+ 
 INSTRUCTIONS:
-- ${docRequest}
-- Resume format: ${styleDesc}
-- Tailor ALL content specifically to match the job description — mirror keywords, highlight directly relevant experience and skills, downplay irrelevant details.
-- Cover letter: 3-4 paragraphs. Professional but warm. Reference the specific company and role. Show genuine interest and connect candidate strengths to the role requirements. Do not be generic.
-- Return ONLY a valid JSON object. No markdown, no code fences, no preamble.
-- JSON structure: { "resume": "full resume text with \\n line breaks", "cover_letter": "full cover letter text with \\n line breaks" }
-- If only one document is requested, include only that key in the JSON.`;
-
+${langNote ? langNote + '\n' : ''}- ${docRequest}
+- Resume format to use: ${getStylePrompt()}
+- Tailor ALL content specifically to this job description. Mirror keywords from the JD. Highlight directly relevant experience. Downplay irrelevant details.
+- Cover letter: 3-4 paragraphs. Professional but warm tone. Reference the specific company name and role title from the JD. Connect candidate's top strengths to the exact role requirements. Never be generic.
+- Extract the exact job title from the JD and include it in the JSON as "job_title".
+- Return ONLY a valid JSON object. No markdown, no code fences, no explanation, no preamble. Just raw JSON.
+- JSON structure: { "job_title": "Software Engineer at Google", "resume": "full resume text using \\n for line breaks", "cover_letter": "full cover letter using \\n for line breaks" }
+- If only a resume is requested, omit cover_letter. If only a cover letter is requested, omit resume. Always include job_title.`;
+ 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -513,7 +394,6 @@ INSTRUCTIONS:
         messages: [{ role: 'user', content: prompt }]
       })
     });
-
     const data = await resp.json();
     const raw = (data.content || []).find(b => b.type === 'text')?.text || '{}';
     let parsed;
@@ -526,75 +406,140 @@ INSTRUCTIONS:
   } catch(e) {
     document.getElementById('results').innerHTML = '<div class="status-msg" style="color:#a32d2d">Something went wrong. Please check your connection and try again.</div>';
   }
-
+ 
   btn.disabled = false;
   btn.textContent = 'Generate documents';
 }
-
+ 
+function getStyleLabel(s) {
+  const map = { european: 'European', american: 'American / ATS', 'indian-general': 'Indian General', 'indian-it': 'Indian IT', 'indian-mba': 'Indian MBA' };
+  return map[s] || s;
+}
+ 
+function getBadgeClass(s) {
+  if (s.startsWith('indian')) return 'in';
+  if (s === 'american') return 'us';
+  return 'eu';
+}
+ 
 function renderResults(data) {
-  const styleLabel = selectedStyle === 'european' ? 'European style' : 'American / ATS style';
+  const sl = getStyleLabel(selectedStyle);
   let html = '';
-
+ 
   if (data.resume) {
-    html += `
-    <div class="card">
+    const fname = safeFilename((data.job_title || 'resume') + '_' + selectedStyle + '_resume');
+    html += `<div class="card">
       <div class="result-header">
         <span class="result-title">Resume</span>
         <button class="btn-copy" onclick="copyText('resume-out', this)">Copy</button>
       </div>
-      <span class="style-tag">${styleLabel}</span>
+      <span class="style-tag">${sl}</span>
       <div class="result-body" id="resume-out">${esc(data.resume)}</div>
-      <button class="btn-secondary" onclick="downloadPDF('resume-out', 'resume')">Download as PDF</button>
+      <button class="btn-secondary" onclick="downloadPDF('resume-out','${esc(fname)}','${esc(data.job_title||'')}','resume')">Download PDF — ${esc(fname)}.pdf</button>
     </div>`;
   }
-
+ 
   if (data.cover_letter) {
-    html += `
-    <div class="card">
+    const fname = safeFilename((data.job_title || 'cover_letter') + '_' + selectedStyle + '_cover_letter');
+    html += `<div class="card" style="margin-top:0">
       <div class="result-header">
         <span class="result-title">Cover letter</span>
         <button class="btn-copy" onclick="copyText('cl-out', this)">Copy</button>
       </div>
       <div class="result-body" id="cl-out">${esc(data.cover_letter)}</div>
-      <button class="btn-secondary" onclick="downloadPDF('cl-out', 'cover_letter')">Download as PDF</button>
+      <button class="btn-secondary" onclick="downloadPDF('cl-out','${esc(fname)}','${esc(data.job_title||'')}','cover_letter')">Download PDF — ${esc(fname)}.pdf</button>
     </div>`;
   }
-
-  if (!html) html = '<div class="status-msg">No content was returned. Please try again.</div>';
+ 
+  if (!html) html = '<div class="status-msg">No content returned. Please try again.</div>';
   document.getElementById('results').innerHTML = html;
 }
-
-function esc(t) {
-  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ 
+function safeFilename(s) {
+  return s.replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_').slice(0, 60);
 }
-
+ 
+function esc(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+ 
 function copyText(id, btn) {
-  const text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(() => {
+  navigator.clipboard.writeText(document.getElementById(id).innerText).then(() => {
     btn.textContent = 'Copied!';
     setTimeout(() => btn.textContent = 'Copy', 2000);
   });
 }
-
-function downloadPDF(id, filename) {
+ 
+function downloadPDF(id, filename, jobTitle, docType) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const text = document.getElementById(id).innerText;
   const margin = 60;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const usableWidth = pageWidth - margin * 2;
+  const usableWidth = doc.internal.pageSize.getWidth() - margin * 2;
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   const lines = doc.splitTextToSize(text, usableWidth);
   let y = margin;
-  const lineH = 16;
   lines.forEach(line => {
     if (y > 800) { doc.addPage(); y = margin; }
     doc.text(line, margin, y);
-    y += lineH;
+    y += 16;
   });
   doc.save(filename + '.pdf');
+  recordDownload(jobTitle || filename, docType, selectedStyle);
+}
+ 
+function recordDownload(jobTitle, docType, style) {
+  const history = JSON.parse(localStorage.getItem('dl_history') || '[]');
+  history.unshift({ jobTitle: jobTitle || 'Unknown role', docType, style, date: new Date().toISOString() });
+  localStorage.setItem('dl_history', JSON.stringify(history.slice(0, 200)));
+}
+ 
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('dl_history') || '[]');
+  const now = new Date();
+  const thisMonth = history.filter(h => {
+    const d = new Date(h.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+ 
+  document.getElementById('stat-total').textContent = history.length;
+  document.getElementById('stat-month').textContent = thisMonth.length;
+ 
+  const counts = {};
+  history.forEach(h => { counts[h.style] = (counts[h.style] || 0) + 1; });
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('stat-top').textContent = top ? getStyleLabel(top[0]).split(' ')[0] : '—';
+ 
+  const list = document.getElementById('history-list');
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-hist">No downloads yet. Generate your first document to start tracking.</div>';
+    return;
+  }
+ 
+  list.innerHTML = history.map(h => {
+    const d = new Date(h.date);
+    const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const docLabel = h.docType === 'resume' ? 'Resume' : h.docType === 'cover_letter' ? 'Cover Letter' : h.docType;
+    return `<div class="hist-item">
+      <div class="hist-item-top">
+        <div>
+          <div class="hist-job">${esc(h.jobTitle)}</div>
+          <div class="hist-meta">${docLabel} &bull; ${dateStr} at ${timeStr}</div>
+        </div>
+        <span class="hist-badge ${getBadgeClass(h.style)}">${getStyleLabel(h.style)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
+function clearHistory() {
+  if (!confirm('Clear all download history?')) return;
+  localStorage.removeItem('dl_history');
+  renderHistory();
 }
 </script>
 </body>
 </html>
+ 
