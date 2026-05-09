@@ -206,7 +206,7 @@
 <script>
 const OR_KEY = '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';
 const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const OR_MODEL = 'google/gemini-flash-1.5';
+const OR_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
  
 async function callAI(prompt, maxTokens) {
   const resp = await fetch(OR_URL, {
