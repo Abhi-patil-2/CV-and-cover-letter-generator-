@@ -89,17 +89,12 @@
 </style>
 </head>
 <body>
- 
 <div class="topbar">
   <div class="topbar-inner">
-    <div>
-      <h1>Career Doc Generator</h1>
-      <p>Visually formatted resume &amp; cover letter — AI powered</p>
-    </div>
+    <div><h1>Career Doc Generator</h1><p>Visually formatted resume &amp; cover letter — AI powered</p></div>
     <span class="badge">v2.0</span>
   </div>
 </div>
- 
 <div class="main">
   <div class="tabs">
     <button class="tab active" onclick="switchTab('generate')">Generate</button>
@@ -108,12 +103,8 @@
     <button class="tab" onclick="switchTab('help')">Help</button>
   </div>
  
-  <!-- GENERATE TAB -->
   <div id="tab-generate">
-    <div class="notice">
-      Each CV style produces a <strong>properly formatted PDF</strong> — real Europass layout, ATS-clean American format, and structured Indian formats. Not plain text.
-    </div>
- 
+    <div class="notice">Each CV style produces a <strong>properly formatted PDF</strong> — real Europass layout, ATS-clean American, and structured Indian formats.</div>
     <div class="card">
       <label class="field-label">Job description language</label>
       <div class="lang-row">
@@ -138,7 +129,6 @@
       <textarea id="job-desc" rows="8" placeholder="Paste the full job description here — any language. Documents always output in English."></textarea>
       <p class="tip">Supports German, French, Spanish, Arabic, Hindi, Japanese, Chinese and more.</p>
     </div>
- 
     <div class="card">
       <div class="section-title">Resume / CV style</div>
       <p class="tip" style="margin-bottom:10px">Each style generates a properly formatted PDF layout.</p>
@@ -159,12 +149,10 @@
         <button class="option-btn" id="btn-cl" onclick="selectDoc('cover')">Cover letter only</button>
       </div>
     </div>
- 
     <button class="btn-primary" id="gen-btn" onclick="generate()">Generate documents</button>
     <div id="results" style="margin-top:1rem"></div>
   </div>
  
-  <!-- PROFILE TAB -->
   <div id="tab-profile" style="display:none">
     <div class="card">
       <label class="field-label">Your profile / existing resume</label>
@@ -175,7 +163,6 @@
     <div id="profile-saved" class="status-msg" style="display:none">Profile saved successfully.</div>
   </div>
  
-  <!-- HISTORY TAB -->
   <div id="tab-history" style="display:none">
     <div class="stat-row">
       <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total downloads</div></div>
@@ -191,7 +178,6 @@
     </div>
   </div>
  
-  <!-- HELP TAB -->
   <div id="tab-help" style="display:none">
     <div class="card">
       <div class="section-title">How to use</div>
@@ -199,7 +185,7 @@
       <p style="font-size:13px;line-height:1.9;color:var(--text2)">
         <strong style="color:var(--text)">Step 1 — Add your profile</strong><br>Go to Profile tab, paste your resume or bio, tap Save.<br><br>
         <strong style="color:var(--text)">Step 2 — Paste the job description</strong><br>Any language. Hit Detect or pick manually.<br><br>
-        <strong style="color:var(--text)">Step 3 — Pick your CV style</strong><br>Each produces a properly formatted PDF — not plain text.<br><br>
+        <strong style="color:var(--text)">Step 3 — Pick your CV style</strong><br>Each produces a properly formatted PDF.<br><br>
         <strong style="color:var(--text)">Step 4 — Generate and download</strong><br>Tap Generate. Download visually formatted PDFs.
       </p>
     </div>
@@ -207,17 +193,41 @@
       <div class="section-title">CV format guide</div>
       <hr class="divider">
       <p style="font-size:13px;line-height:1.9;color:var(--text2)">
-        <strong style="color:var(--text)">European (Europass)</strong> — Blue header bar, 2-column layout, photo placeholder, structured sections. Current official EU standard. Best for Germany, France, Netherlands, Scandinavia, EU jobs.<br><br>
-        <strong style="color:var(--text)">American (ATS)</strong> — Clean single-column, bold section headings, achievement bullets with metrics, keyword-dense. No photo or DOB. Highest ATS pass rate. Best for US, Canada, UK, global MNCs.<br><br>
-        <strong style="color:var(--text)">Indian General</strong> — Career objective, personal details table, declaration. Standard across BFSI, government, general corporate India.<br><br>
-        <strong style="color:var(--text)">Indian IT</strong> — Technical skills matrix, project tables with tech stack. Preferred by TCS, Infosys, Wipro, HCL, Indian startups and IT MNCs.<br><br>
-        <strong style="color:var(--text)">Indian MBA</strong> — Education prominent, leadership roles, internships, extra-curriculars. Best for consulting, FMCG, banking management roles.
+        <strong style="color:var(--text)">European (Europass)</strong> — Blue header, 2-column feel, structured sections. Best for EU jobs.<br><br>
+        <strong style="color:var(--text)">American (ATS)</strong> — Keyword-dense, achievement bullets with metrics. Best for US/Canada/UK.<br><br>
+        <strong style="color:var(--text)">Indian General</strong> — Objective, personal details, declaration. Works across all Indian sectors.<br><br>
+        <strong style="color:var(--text)">Indian IT</strong> — Skills matrix, project tables. Best for TCS, Infosys, Wipro, startups.<br><br>
+        <strong style="color:var(--text)">Indian MBA</strong> — Education prominent, leadership, internships. Best for management roles.
       </p>
     </div>
   </div>
 </div>
  
 <script>
+const OR_KEY = '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';
+const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OR_MODEL = 'anthropic/claude-sonnet-4-5';
+ 
+async function callAI(prompt, maxTokens) {
+  const resp = await fetch(OR_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + OR_KEY,
+      'HTTP-Referer': 'https://abhi-patil-2.github.io',
+      'X-Title': 'Career Doc Generator'
+    },
+    body: JSON.stringify({
+      model: OR_MODEL,
+      max_tokens: maxTokens || 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error?.message || 'API error');
+  return data.choices[0].message.content;
+}
+ 
 let selectedStyle = 'european';
 let selectedDoc = 'both';
 const styleIds = { european:'btn-eu', american:'btn-us', 'indian-general':'btn-in-gen', 'indian-it':'btn-in-it', 'indian-mba':'btn-in-mba' };
@@ -254,12 +264,10 @@ async function detectLanguage() {
   const el = document.getElementById('detect-result');
   el.style.display=''; el.textContent='Detecting...';
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:60,messages:[{role:'user',content:'What language is this text written in? Reply with ONLY the language name in English, nothing else.\n\n'+jd.slice(0,500)}]})});
-    const data = await resp.json();
-    const lang = (data.content.find(b=>b.type==='text')?.text||'').trim();
-    el.textContent='Detected: '+lang;
+    const lang = await callAI('What language is this text written in? Reply with ONLY the language name in English, nothing else.\n\n'+jd.slice(0,500), 60);
+    el.textContent='Detected: '+lang.trim();
     const sel = document.getElementById('jd-lang');
-    const match = Array.from(sel.options).find(o=>o.text.toLowerCase().includes(lang.toLowerCase()));
+    const match = Array.from(sel.options).find(o=>o.text.toLowerCase().includes(lang.trim().toLowerCase()));
     if (match) sel.value=match.value;
   } catch(e) { el.textContent='Could not detect. Please select manually.'; }
 }
@@ -267,73 +275,15 @@ async function detectLanguage() {
 function getStylePrompt() {
   const s = selectedStyle;
   if (s==='european') return `European Europass 2024 format. Return JSON with these exact keys:
-{
-  "name": "Full Name",
-  "email": "email", "phone": "phone", "location": "City, Country", "linkedin": "linkedin url or empty",
-  "summary": "3-line professional profile summary",
-  "experience": [{"company":"","role":"","period":"Mon YYYY - Mon YYYY","location":"","bullets":["achievement 1","achievement 2","achievement 3"]}],
-  "education": [{"degree":"","institution":"","year":"","grade":""}],
-  "skills": ["skill1","skill2","skill3"],
-  "languages": [{"language":"","level":"Native/Fluent/B2/B1/A2"}],
-  "certifications": ["cert1","cert2"]
-}`;
-  if (s==='american') return `American ATS-optimized resume 2024. Return JSON with these exact keys:
-{
-  "name": "Full Name",
-  "email": "email", "phone": "phone", "location": "City, State", "linkedin": "linkedin",
-  "summary": "2-3 line results-driven professional summary with keywords",
-  "core_competencies": ["skill1","skill2","skill3","skill4","skill5","skill6","skill7","skill8","skill9"],
-  "experience": [{"company":"","role":"","period":"Mon YYYY - Present","location":"","bullets":["Achieved X resulting in Y% improvement","Led Z initiative saving $N","Managed team of N to deliver X"]}],
-  "education": [{"degree":"","institution":"","year":"","gpa":""}],
-  "certifications": ["cert1"],
-  "technical_skills": {"category1":["skill1","skill2"],"category2":["skill3","skill4"]}
-}`;
-  if (s==='indian-general') return `Indian General CV format. Return JSON with these exact keys:
-{
-  "name": "Full Name",
-  "email": "email", "phone": "phone", "location": "City, State", "linkedin": "linkedin or empty",
-  "dob": "DD Month YYYY", "nationality": "Indian", "languages_known": ["English","Hindi"],
-  "objective": "2-3 line career objective tailored to the role",
-  "experience": [{"company":"","role":"","period":"Mon YYYY - Mon YYYY","responsibilities":["resp 1","resp 2","resp 3"]}],
-  "education": [{"degree":"","institution":"","year":"","percentage":""}],
-  "skills": {"technical":["skill1","skill2"],"soft":["skill1","skill2"]},
-  "achievements": ["achievement 1","achievement 2"],
-  "hobbies": ["hobby1","hobby2","hobby3"],
-  "declaration": true
-}`;
-  if (s==='indian-it') return `Indian IT Resume format (maximum ATS pass rate for Indian tech companies). Return JSON with these exact keys:
-{
-  "name": "Full Name",
-  "email": "email", "phone": "phone", "location": "City, India", "linkedin": "linkedin", "github": "github or empty",
-  "summary": "3-line technical professional summary mentioning core tech stack and years of experience",
-  "technical_skills": {
-    "languages": ["Java","Python"],
-    "frameworks": ["Spring Boot","React"],
-    "databases": ["MySQL","MongoDB"],
-    "tools": ["Git","Jenkins","Docker"],
-    "cloud": ["AWS","Azure"],
-    "methodologies": ["Agile","Scrum","CI/CD"]
-  },
-  "experience": [{"company":"","role":"","period":"Mon YYYY - Present","tech_stack":["Java","Spring"],"bullets":["Developed X feature using Y, resulting in Z% performance improvement","Collaborated with team of N engineers to deliver X module"]}],
-  "projects": [{"title":"","tech_stack":["tech1","tech2"],"role":"","duration":"","description":"2-line description","achievements":["key outcome 1"]}],
-  "education": [{"degree":"","institution":"","year":"","cgpa":""}],
-  "certifications": ["AWS Certified Developer","Oracle Java SE"],
-  "achievements": ["achievement 1"]
-}`;
-  if (s==='indian-mba') return `Indian MBA/Management CV format. Return JSON with these exact keys:
-{
-  "name": "Full Name",
-  "email": "email", "phone": "phone", "location": "City, India", "linkedin": "linkedin or empty",
-  "objective": "2-3 line career objective for management role",
-  "education": [{"degree":"MBA - Marketing","institution":"IIM / College Name","year":"2023","cgpa":"3.8/4.0","achievements":["Dean's List","Top 10% of batch"]}],
-  "experience": [{"company":"","role":"","period":"Mon YYYY - Mon YYYY","bullets":["Led team of N to achieve X, resulting in Y% revenue growth","Managed P&L of Rs. X Cr","Implemented Z strategy reducing costs by Y%"]}],
-  "internships": [{"company":"","role":"","duration":"2 months","outcome":"Designed X strategy that Y"}],
-  "projects": [{"title":"","context":"","approach":"","outcome":""}],
-  "leadership": ["President - Marketing Club, IIM X (2022-23)","Winner - National Case Competition, Y B-School"],
-  "skills": {"analytical":["Excel","Tableau","Financial Modeling"],"functional":["Marketing Strategy","P&L Management"],"soft":["Leadership","Stakeholder Management"]},
-  "certifications": ["CFA Level 1","Google Analytics"],
-  "achievements": ["National rank X in CAT 20XX","Scholarship recipient"]
-}`;
+{"name":"","email":"","phone":"","location":"City, Country","linkedin":"","summary":"3-line professional profile","experience":[{"company":"","role":"","period":"Mon YYYY - Mon YYYY","location":"","bullets":["achievement 1","achievement 2","achievement 3"]}],"education":[{"degree":"","institution":"","year":"","grade":""}],"skills":["skill1","skill2"],"languages":[{"language":"","level":"Native/Fluent/B2"}],"certifications":["cert1"]}`;
+  if (s==='american') return `American ATS-optimized resume 2024. Return JSON:
+{"name":"","email":"","phone":"","location":"City, State","linkedin":"","summary":"2-3 line results-driven summary with keywords","core_competencies":["skill1","skill2","skill3","skill4","skill5","skill6"],"experience":[{"company":"","role":"","period":"Mon YYYY - Present","location":"","bullets":["Achieved X resulting in Y% improvement","Led Z saving $N"]}],"education":[{"degree":"","institution":"","year":"","gpa":""}],"certifications":["cert1"],"technical_skills":{"category1":["skill1","skill2"]}}`;
+  if (s==='indian-general') return `Indian General CV. Return JSON:
+{"name":"","email":"","phone":"","location":"City, State","linkedin":"","dob":"DD Month YYYY","nationality":"Indian","languages_known":["English","Hindi"],"objective":"2-3 line career objective","experience":[{"company":"","role":"","period":"Mon YYYY - Mon YYYY","responsibilities":["resp 1","resp 2"]}],"education":[{"degree":"","institution":"","year":"","percentage":""}],"skills":{"technical":["skill1"],"soft":["skill1"]},"achievements":["achievement 1"],"hobbies":["hobby1","hobby2"]}`;
+  if (s==='indian-it') return `Indian IT Resume (max ATS). Return JSON:
+{"name":"","email":"","phone":"","location":"City, India","linkedin":"","github":"","summary":"3-line technical summary","technical_skills":{"languages":["Java"],"frameworks":["Spring"],"databases":["MySQL"],"tools":["Git","Docker"],"cloud":["AWS"],"methodologies":["Agile","CI/CD"]},"experience":[{"company":"","role":"","period":"Mon YYYY - Present","tech_stack":["Java"],"bullets":["Developed X using Y, improving Z by N%"]}],"projects":[{"title":"","tech_stack":["tech1"],"role":"","duration":"","description":"2-line desc","achievements":["outcome"]}],"education":[{"degree":"","institution":"","year":"","cgpa":""}],"certifications":["AWS Certified"],"achievements":["achievement"]}`;
+  if (s==='indian-mba') return `Indian MBA CV. Return JSON:
+{"name":"","email":"","phone":"","location":"City, India","linkedin":"","objective":"2-3 line management objective","education":[{"degree":"MBA","institution":"","year":"","cgpa":"","achievements":["Dean's List"]}],"experience":[{"company":"","role":"","period":"Mon YYYY - Mon YYYY","bullets":["Led team of N achieving X, Y% revenue growth"]}],"internships":[{"company":"","role":"","duration":"2 months","outcome":"outcome"}],"projects":[{"title":"","context":"","outcome":""}],"leadership":["President - Club Name"],"skills":{"analytical":["Excel","Tableau"],"functional":["Strategy"],"soft":["Leadership"]},"certifications":["CFA Level 1"],"achievements":["CAT rank"]}`;
 }
  
 async function generate() {
@@ -345,13 +295,17 @@ async function generate() {
  
   const btn = document.getElementById('gen-btn');
   btn.disabled=true; btn.textContent='Generating...';
-  document.getElementById('results').innerHTML='<div class="status-msg"><span class="spinner"></span>Generating visually formatted documents — this takes 20-40 seconds...</div>';
+  document.getElementById('results').innerHTML='<div class="status-msg"><span class="spinner"></span>Generating your formatted documents — 20 to 40 seconds...</div>';
  
-  const langNote = lang==='auto' ? 'The job description may be in any language. Detect it, understand it fully, output in English.' : lang==='english' ? '' : `JD is in ${lang}. Translate and understand it, generate output in English.`;
-  const docRequest = selectedDoc==='both' ? 'Generate BOTH resume data AND cover letter.' : selectedDoc==='cv' ? 'Generate resume data only.' : 'Generate cover letter only.';
-  const stylePrompt = getStylePrompt();
+  const langNote = lang==='auto'?'The JD may be in any language. Detect it and generate output in English.'
+    :lang==='english'?''
+    :`The JD is in ${lang}. Translate it fully and generate output in English.`;
  
-  const prompt = `You are an expert career consultant. Produce highly tailored application documents based on the candidate profile and job description.
+  const docRequest = selectedDoc==='both'?'Generate BOTH resume JSON AND cover_letter JSON.'
+    :selectedDoc==='cv'?'Generate resume JSON only.'
+    :'Generate cover_letter JSON only.';
+ 
+  const prompt = `You are an expert career consultant. Produce highly tailored application documents.
  
 CANDIDATE PROFILE:
 ${profile}
@@ -363,824 +317,220 @@ ${langNote}
  
 TASK: ${docRequest}
  
-For the resume, use EXACTLY this format and return structured JSON:
-${stylePrompt}
+For the resume use EXACTLY this JSON structure:
+${getStylePrompt()}
  
-For the cover letter (if requested), also include a "cover_letter" key with this structure:
-"cover_letter": {
-  "date": "9 May 2026",
-  "hiring_manager": "Hiring Manager",
-  "company": "Company Name from JD",
-  "role": "Role Title from JD",
-  "paragraphs": ["paragraph 1 text", "paragraph 2 text", "paragraph 3 text", "paragraph 4 text"],
-  "sender_name": "Candidate Full Name"
-}
+For the cover letter include:
+"cover_letter":{"date":"9 May 2026","hiring_manager":"Hiring Manager","company":"Company from JD","role":"Role from JD","paragraphs":["para1","para2","para3","para4"],"sender_name":"Candidate Name"}
  
-Also include: "job_title": "exact job title from JD", "company_name": "company name from JD"
+Also include: "job_title":"exact job title", "company_name":"company name"
  
-CRITICAL: Return ONLY valid JSON. No markdown. No code fences. No explanation. Raw JSON only.
-Tailor ALL content specifically to match the job description keywords and requirements.`;
+CRITICAL: Return ONLY raw valid JSON. No markdown. No code fences. No explanation. Just JSON.
+Tailor ALL content to match the job description keywords.`;
  
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
-    const data = await resp.json();
-    const raw = (data.content||[]).find(b=>b.type==='text')?.text||'{}';
+    const raw = await callAI(prompt, 4000);
     let parsed;
     try { parsed=JSON.parse(raw); }
     catch(e) { const m=raw.match(/\{[\s\S]*\}/); try{parsed=m?JSON.parse(m[0]):{}}catch(e2){parsed={};} }
     renderResults(parsed);
   } catch(e) {
-    document.getElementById('results').innerHTML='<div class="status-msg" style="color:#a32d2d">Error. Please check your connection and try again.</div>';
+    document.getElementById('results').innerHTML=`<div class="status-msg" style="color:#a32d2d">Error: ${e.message}. Please try again.</div>`;
   }
   btn.disabled=false; btn.textContent='Generate documents';
 }
  
-function getStyleLabel(s) {
-  return {european:'European (Europass)',american:'American / ATS','indian-general':'Indian General','indian-it':'Indian IT','indian-mba':'Indian MBA'}[s]||s;
-}
-function getBadgeClass(s) { return s.startsWith('indian')?'in':s==='american'?'us':'eu'; }
-function safeFilename(s) { return s.replace(/[^a-zA-Z0-9_\-]/g,'_').replace(/_+/g,'_').slice(0,60); }
-function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getStyleLabel(s){return{european:'European (Europass)',american:'American / ATS','indian-general':'Indian General','indian-it':'Indian IT','indian-mba':'Indian MBA'}[s]||s;}
+function getBadgeClass(s){return s.startsWith('indian')?'in':s==='american'?'us':'eu';}
+function safeFilename(s){return s.replace(/[^a-zA-Z0-9_\-]/g,'_').replace(/_+/g,'_').slice(0,60);}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
  
 function renderResults(data) {
-  let html = '';
-  const sl = getStyleLabel(selectedStyle);
- 
-  if (data.name || data.summary || data.objective) {
-    const fname = safeFilename((data.job_title||'resume')+'_'+selectedStyle+'_resume');
-    const preview = buildResumePreview(data);
-    html += `<div class="card">
-      <div class="result-header"><span class="result-title">Resume</span><button class="btn-copy" onclick="copyPreview('resume-preview',this)">Copy text</button></div>
-      <span class="style-tag">${sl}</span><span class="format-tag">Formatted PDF</span>
-      <div class="result-body" id="resume-preview">${preview}</div>
-      <button class="btn-secondary" onclick="downloadResumePDF(${JSON.stringify(JSON.stringify(data))}, '${esc(fname)}')">Download formatted PDF — ${esc(fname)}.pdf</button>
-    </div>`;
+  let html='';
+  const sl=getStyleLabel(selectedStyle);
+  if (data.name||data.summary||data.objective) {
+    const fname=safeFilename((data.job_title||'resume')+'_'+selectedStyle+'_resume');
+    const preview=buildPreview(data);
+    html+=`<div class="card"><div class="result-header"><span class="result-title">Resume</span><button class="btn-copy" onclick="copyPreview('resume-preview',this)">Copy text</button></div><span class="style-tag">${sl}</span><span class="format-tag">Formatted PDF</span><div class="result-body" id="resume-preview">${preview}</div><button class="btn-secondary" onclick='downloadResumePDF(${JSON.stringify(JSON.stringify(data))},"${esc(fname)}")'>Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
   }
- 
   if (data.cover_letter) {
-    const cl = data.cover_letter;
-    const fname = safeFilename((data.job_title||'cover_letter')+'_'+selectedStyle+'_cover_letter');
-    const clPreview = [cl.paragraphs||[]].flat().join('\n\n');
-    html += `<div class="card" style="margin-top:0">
-      <div class="result-header"><span class="result-title">Cover letter</span><button class="btn-copy" onclick="copyPreview('cl-preview',this)">Copy text</button></div>
-      <span class="format-tag">Formatted PDF</span>
-      <div class="result-body" id="cl-preview">${esc(clPreview)}</div>
-      <button class="btn-secondary" onclick="downloadCoverLetterPDF(${JSON.stringify(JSON.stringify(cl))}, '${esc(fname)}', '${esc(data.job_title||'')}')">Download formatted PDF — ${esc(fname)}.pdf</button>
-    </div>`;
+    const cl=data.cover_letter;
+    const fname=safeFilename((data.job_title||'cover_letter')+'_cover_letter');
+    const clPreview=(cl.paragraphs||[]).join('\n\n');
+    html+=`<div class="card" style="margin-top:0"><div class="result-header"><span class="result-title">Cover letter</span><button class="btn-copy" onclick="copyPreview('cl-preview',this)">Copy text</button></div><span class="format-tag">Formatted PDF</span><div class="result-body" id="cl-preview">${esc(clPreview)}</div><button class="btn-secondary" onclick='downloadCoverLetterPDF(${JSON.stringify(JSON.stringify(cl))},"${esc(fname)}","${esc(data.job_title||'')}")'>Download formatted PDF — ${esc(fname)}.pdf</button></div>`;
   }
- 
   if (!html) html='<div class="status-msg">No content returned. Please try again.</div>';
   document.getElementById('results').innerHTML=html;
-  if (data.job_title) recordDownload(data.job_title, selectedDoc, selectedStyle);
 }
  
-function buildResumePreview(d) {
-  let lines = [];
-  if (d.name) lines.push(d.name.toUpperCase());
-  const contact = [d.email,d.phone,d.location,d.linkedin].filter(Boolean).join(' | ');
-  if (contact) lines.push(contact);
-  lines.push('');
-  if (d.summary||d.objective) lines.push((d.summary||d.objective));
-  lines.push('');
-  if (d.experience&&d.experience.length) {
-    lines.push('WORK EXPERIENCE');
-    d.experience.forEach(e=>{
-      lines.push(`${e.role} — ${e.company} (${e.period})`);
-      (e.bullets||e.responsibilities||[]).forEach(b=>lines.push('• '+b));
-      lines.push('');
-    });
-  }
-  if (d.education&&d.education.length) {
-    lines.push('EDUCATION');
-    d.education.forEach(e=>lines.push(`${e.degree} — ${e.institution} (${e.year})`));
-    lines.push('');
-  }
+function buildPreview(d) {
+  let lines=[];
+  if(d.name) lines.push(d.name.toUpperCase());
+  const c=[d.email,d.phone,d.location,d.linkedin].filter(Boolean).join(' | ');
+  if(c) lines.push(c); lines.push('');
+  if(d.summary||d.objective) lines.push(d.summary||d.objective); lines.push('');
+  if(d.experience&&d.experience.length){lines.push('WORK EXPERIENCE');d.experience.forEach(e=>{lines.push(`${e.role} — ${e.company} (${e.period})`);(e.bullets||e.responsibilities||[]).forEach(b=>lines.push('• '+b));lines.push('');});}
+  if(d.education&&d.education.length){lines.push('EDUCATION');d.education.forEach(e=>lines.push(`${e.degree} — ${e.institution} (${e.year})`));}
   return esc(lines.join('\n'));
 }
  
-function copyPreview(id, btn) {
-  navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy text',2000);});
+function copyPreview(id,btn){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy text',2000);});}
+ 
+/* PDF BUILDERS */
+function downloadResumePDF(dataStr,filename){
+  const d=JSON.parse(dataStr);
+  if(selectedStyle==='european') buildEuropeanPDF(d,filename);
+  else if(selectedStyle==='american') buildAmericanPDF(d,filename);
+  else if(selectedStyle==='indian-general') buildIndianGeneralPDF(d,filename);
+  else if(selectedStyle==='indian-it') buildIndianITPDF(d,filename);
+  else if(selectedStyle==='indian-mba') buildIndianMBAPDF(d,filename);
 }
  
-/* ── PDF BUILDERS ── */
- 
-function downloadResumePDF(dataStr, filename) {
-  const d = JSON.parse(dataStr);
-  const s = selectedStyle;
-  if (s==='european') buildEuropeanPDF(d, filename);
-  else if (s==='american') buildAmericanPDF(d, filename);
-  else if (s==='indian-general') buildIndianGeneralPDF(d, filename);
-  else if (s==='indian-it') buildIndianITPDF(d, filename);
-  else if (s==='indian-mba') buildIndianMBAPDF(d, filename);
-}
- 
-/* helpers */
-function newDoc() { return new window.jspdf.jsPDF({unit:'pt',format:'a4'}); }
-const PW=595, PH=842, ML=50, MR=50, MT=50;
-function usableW() { return PW-ML-MR; }
-function addNewPage(doc,y) { if(y>PH-60){doc.addPage();return MT;} return y; }
-function wrapText(doc,text,x,y,maxW,lineH) {
+function newDoc(){return new window.jspdf.jsPDF({unit:'pt',format:'a4'});}
+const PW=595,PH=842,ML=50,MR=50,MT=50;
+function usableW(){return PW-ML-MR;}
+function addPage(doc,y){if(y>PH-70){doc.addPage();return MT;}return y;}
+function wrapText(doc,text,x,y,maxW,lh){
   const lines=doc.splitTextToSize(String(text||''),maxW);
-  lines.forEach(l=>{ y=addNewPage(doc,y); doc.text(l,x,y); y+=lineH; });
+  lines.forEach(l=>{y=addPage(doc,y);doc.text(l,x,y);y+=lh;});
   return y;
 }
  
-/* EUROPEAN EUROPASS PDF */
-function buildEuropeanPDF(d, filename) {
-  const doc = newDoc();
-  const blue = [0,68,130]; const lightBlue=[230,241,251]; const white=[255,255,255]; const dark=[30,30,30]; const gray=[120,120,120];
- 
-  /* header bar */
-  doc.setFillColor(...blue);
-  doc.rect(0,0,PW,110,`F`);
- 
-  /* name */
-  doc.setTextColor(...white);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(22);
-  doc.text(d.name||'Your Name', ML, 45);
- 
-  /* contact line */
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  const contactParts=[d.email,d.phone,d.location,d.linkedin].filter(Boolean);
-  doc.text(contactParts.join('   |   '), ML, 62);
- 
-  /* summary in header */
-  if (d.summary) {
-    doc.setFontSize(9);
-    const sumLines=doc.splitTextToSize(d.summary, PW-ML-MR-20);
-    let sy=78;
-    sumLines.slice(0,3).forEach(l=>{ doc.text(l,ML,sy); sy+=13; });
+function buildEuropeanPDF(d,filename){
+  const doc=newDoc();
+  doc.setFillColor(0,68,130); doc.rect(0,0,PW,105,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+  doc.text(d.name||'Your Name',ML,40);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text([d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('   |   '),ML,56);
+  if(d.summary){const sl=doc.splitTextToSize(d.summary,PW-ML-MR-10);let sy=70;sl.slice(0,3).forEach(l=>{doc.text(l,ML,sy);sy+=12;});}
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('CURRICULUM VITAE',PW-MR-85,18);
+  doc.setTextColor(20,20,20);
+  let y=125;
+  function sec(title){
+    y=addPage(doc,y);
+    doc.setFillColor(230,241,251); doc.rect(ML,y-12,usableW(),16,'F');
+    doc.setFillColor(0,68,130); doc.rect(ML,y-12,4,16,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,68,130);
+    doc.text(title.toUpperCase(),ML+10,y); doc.setTextColor(20,20,20); y+=12;
   }
- 
-  /* EUROPASS label */
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...white);
-  doc.text('CURRICULUM VITAE', PW-MR-80, 20);
- 
-  /* body */
-  doc.setTextColor(...dark);
-  let y = 130;
- 
-  function sectionHeader(title) {
-    y = addNewPage(doc,y);
-    doc.setFillColor(...lightBlue);
-    doc.rect(ML,y-12,usableW(),16,'F');
-    doc.setFillColor(...blue);
-    doc.rect(ML,y-12,4,16,'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...blue);
-    doc.text(title.toUpperCase(), ML+10, y);
-    doc.setTextColor(...dark);
-    y += 12;
-  }
- 
-  /* experience */
-  if (d.experience&&d.experience.length) {
-    sectionHeader('Work Experience');
-    d.experience.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(e.role||'', ML+6, y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.company||''}  |  ${e.period||''}  |  ${e.location||''}`, ML+6, y+13);
-      doc.setTextColor(...dark);
-      y+=24;
-      (e.bullets||e.responsibilities||[]).forEach(b=>{
-        y=addNewPage(doc,y);
-        doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        const blines=doc.splitTextToSize('• '+b, usableW()-12);
-        blines.forEach(l=>{ doc.text(l,ML+10,y); y+=12; });
-      });
-      y+=6;
-    });
-  }
- 
-  /* education */
-  if (d.education&&d.education.length) {
-    sectionHeader('Education');
-    d.education.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(e.degree||'', ML+6, y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.institution||''}  |  ${e.year||''}${e.grade||e.cgpa?'  |  '+(e.grade||e.cgpa):''}`, ML+6, y+13);
-      doc.setTextColor(...dark);
-      y+=28;
-    });
-  }
- 
-  /* skills */
-  if (d.skills&&d.skills.length) {
-    sectionHeader('Skills');
-    const skillText = d.skills.join('   •   ');
-    y=addNewPage(doc,y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    y=wrapText(doc,skillText,ML+6,y,usableW()-12,13);
-    y+=6;
-  }
- 
-  /* languages */
-  if (d.languages&&d.languages.length) {
-    sectionHeader('Languages');
-    d.languages.forEach(l=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text(`${l.language||l}:  ${l.level||''}`, ML+6, y);
-      y+=13;
-    });
-    y+=4;
-  }
- 
-  /* certifications */
-  if (d.certifications&&d.certifications.length) {
-    sectionHeader('Certifications');
-    d.certifications.forEach(c=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+c, ML+6, y); y+=13;
-    });
-  }
- 
-  /* footer */
-  const totalPages=doc.internal.getNumberOfPages();
-  for(let i=1;i<=totalPages;i++){
-    doc.setPage(i);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...gray);
-    doc.text(`Page ${i} / ${totalPages}`, PW/2, PH-20, {align:'center'});
-  }
- 
-  doc.save(filename+'.pdf');
-  recordDownload(d.name||'resume','resume',selectedStyle);
+  if(d.experience&&d.experience.length){sec('Work Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.role||'',ML+6,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.company||''}  |  ${e.period||''}  |  ${e.location||''}`,ML+6,y+13);doc.setTextColor(20,20,20);y+=24;(e.bullets||e.responsibilities||[]).forEach(b=>{y=addPage(doc,y);const bl=doc.splitTextToSize('• '+b,usableW()-12);bl.forEach(l=>{doc.text(l,ML+10,y);y+=12;});});y+=6;});}
+  if(d.education&&d.education.length){sec('Education');d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.degree||'',ML+6,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.institution||''}  |  ${e.year||''}${e.grade||e.cgpa?'  |  '+(e.grade||e.cgpa):''}`,ML+6,y+13);doc.setTextColor(20,20,20);y+=28;});}
+  if(d.skills&&d.skills.length){sec('Skills');doc.setFont('helvetica','normal');doc.setFontSize(9);y=wrapText(doc,d.skills.join('   •   '),ML+6,y,usableW()-12,13);y+=6;}
+  if(d.languages&&d.languages.length){sec('Languages');d.languages.forEach(l=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(`${l.language||l}:  ${l.level||''}`,ML+6,y);y+=13;});y+=4;}
+  if(d.certifications&&d.certifications.length){sec('Certifications');d.certifications.forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML+6,y);y+=13;});}
+  const tp=doc.internal.getNumberOfPages();
+  for(let i=1;i<=tp;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Page ${i} / ${tp}`,PW/2,PH-20,{align:'center'});}
+  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
  
-/* AMERICAN ATS PDF */
-function buildAmericanPDF(d, filename) {
-  const doc = newDoc();
-  const dark=[20,20,20]; const gray=[100,100,100]; const accent=[10,60,130]; const lightgray=[245,245,245];
-  let y=MT;
- 
-  /* name */
-  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(...dark);
-  doc.text(d.name||'Your Name', PW/2, y, {align:'center'}); y+=16;
- 
-  /* contact */
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-  const cp=[d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('  |  ');
-  doc.text(cp, PW/2, y, {align:'center'}); y+=6;
- 
-  /* rule */
-  doc.setDrawColor(...accent); doc.setLineWidth(1.5);
-  doc.line(ML,y,PW-MR,y); y+=14;
- 
-  function atsSection(title) {
-    y=addNewPage(doc,y);
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...accent);
-    doc.text(title.toUpperCase(), ML, y); y+=3;
-    doc.setDrawColor(...accent); doc.setLineWidth(0.5);
-    doc.line(ML,y,PW-MR,y); y+=10;
-    doc.setTextColor(...dark);
-  }
- 
-  /* summary */
-  if (d.summary) {
-    atsSection('Professional Summary');
-    doc.setFont('helvetica','normal'); doc.setFontSize(10);
-    y=wrapText(doc,d.summary,ML,y,usableW(),14); y+=6;
-  }
- 
-  /* core competencies */
-  if (d.core_competencies&&d.core_competencies.length) {
-    atsSection('Core Competencies');
-    const cols=3; const colW=usableW()/cols;
-    let cx=ML, cy=y;
-    d.core_competencies.forEach((s,i)=>{
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('✦  '+s, cx, cy);
-      if ((i+1)%cols===0){cy+=13;cx=ML;}else{cx+=colW;}
-    });
-    y=cy+14;
-  }
- 
-  /* experience */
-  if (d.experience&&d.experience.length) {
-    atsSection('Professional Experience');
-    d.experience.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
-      doc.text(e.role||'', ML, y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      const right=`${e.company||''}  |  ${e.period||''}  |  ${e.location||''}`;
-      doc.text(right, ML, y+12); doc.setTextColor(...dark);
-      y+=22;
-      (e.bullets||[]).forEach(b=>{
-        y=addNewPage(doc,y);
-        doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        const blines=doc.splitTextToSize('• '+b,usableW()-10);
-        blines.forEach(l=>{doc.text(l,ML+8,y);y+=12;});
-      });
-      y+=6;
-    });
-  }
- 
-  /* education */
-  if (d.education&&d.education.length) {
-    atsSection('Education');
-    d.education.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(e.degree||'',ML,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.institution||''}  |  ${e.year||''}${e.gpa?'  |  GPA: '+e.gpa:''}`,ML,y+12);
-      doc.setTextColor(...dark); y+=26;
-    });
-  }
- 
-  /* technical skills */
-  if (d.technical_skills) {
-    atsSection('Technical Skills');
-    Object.entries(d.technical_skills).forEach(([cat,skills])=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(9);
-      doc.text(cat+': ', ML, y);
-      doc.setFont('helvetica','normal');
-      const sw=doc.getTextWidth(cat+': ');
-      y=wrapText(doc,skills.join(', '),ML+sw,y,usableW()-sw,12); y+=4;
-    });
-  }
- 
-  /* certifications */
-  if (d.certifications&&d.certifications.length) {
-    atsSection('Certifications');
-    d.certifications.forEach(c=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+c,ML,y); y+=12;
-    });
-  }
- 
-  doc.save(filename+'.pdf');
-  recordDownload(d.name||'resume','resume',selectedStyle);
+function buildAmericanPDF(d,filename){
+  const doc=newDoc(); let y=MT;
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(20,20,20);
+  doc.text(d.name||'Your Name',PW/2,y,{align:'center'});y+=16;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);
+  doc.text([d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('  |  '),PW/2,y,{align:'center'});y+=8;
+  doc.setDrawColor(10,60,130);doc.setLineWidth(1.5);doc.line(ML,y,PW-MR,y);y+=14;
+  function sec(t){y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(10,60,130);doc.text(t.toUpperCase(),ML,y);y+=3;doc.setDrawColor(10,60,130);doc.setLineWidth(0.5);doc.line(ML,y,PW-MR,y);y+=10;doc.setTextColor(20,20,20);}
+  if(d.summary){sec('Professional Summary');doc.setFont('helvetica','normal');doc.setFontSize(10);y=wrapText(doc,d.summary,ML,y,usableW(),14);y+=6;}
+  if(d.core_competencies&&d.core_competencies.length){sec('Core Competencies');const cw=usableW()/3;let cx=ML,cy=y;d.core_competencies.forEach((s,i)=>{doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('✦  '+s,cx,cy);if((i+1)%3===0){cy+=13;cx=ML;}else{cx+=cw;}});y=cy+14;}
+  if(d.experience&&d.experience.length){sec('Professional Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(20,20,20);doc.text(e.role||'',ML,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.company||''}  |  ${e.period||''}  |  ${e.location||''}`,ML,y+12);doc.setTextColor(20,20,20);y+=22;(e.bullets||[]).forEach(b=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);const bl=doc.splitTextToSize('• '+b,usableW()-10);bl.forEach(l=>{doc.text(l,ML+8,y);y+=12;});});y+=6;});}
+  if(d.education&&d.education.length){sec('Education');d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.degree||'',ML,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.institution||''}  |  ${e.year||''}${e.gpa?'  |  GPA: '+e.gpa:''}`,ML,y+12);doc.setTextColor(20,20,20);y+=26;});}
+  if(d.technical_skills){sec('Technical Skills');Object.entries(d.technical_skills).forEach(([cat,skills])=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(10,60,130);const label=cat+': ';doc.text(label,ML,y);const sw=doc.getTextWidth(label);doc.setFont('helvetica','normal');doc.setTextColor(20,20,20);y=wrapText(doc,(skills||[]).join(', '),ML+sw,y,usableW()-sw,12);y+=4;});}
+  if(d.certifications&&d.certifications.length){sec('Certifications');d.certifications.forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML,y);y+=12;});}
+  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
  
-/* INDIAN GENERAL PDF */
-function buildIndianGeneralPDF(d, filename) {
-  const doc = newDoc();
-  const dark=[20,20,20]; const maroon=[128,0,32]; const gray=[100,100,100]; const lightgray=[248,248,248];
-  let y=MT;
- 
-  /* header */
-  doc.setFillColor(...maroon);
-  doc.rect(0,0,PW,70,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold'); doc.setFontSize(18);
-  doc.text(d.name||'Your Name',PW/2,30,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  const cp=[d.email,d.phone,d.location].filter(Boolean).join('   |   ');
-  doc.text(cp,PW/2,46,{align:'center'});
-  if(d.linkedin){doc.text(d.linkedin,PW/2,58,{align:'center'});}
-  y=90;
- 
-  function indSection(title){
-    y=addNewPage(doc,y);
-    doc.setFillColor(...maroon);
-    doc.rect(ML,y-10,usableW(),14,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
-    doc.text(title.toUpperCase(),ML+6,y);
-    doc.setTextColor(...dark); y+=12;
-  }
- 
-  /* personal details */
-  indSection('Personal Details');
-  const pd=[['Date of Birth',d.dob||''],['Nationality',d.nationality||'Indian'],['Languages Known',(d.languages_known||[]).join(', ')]];
-  pd.forEach(([k,v])=>{
-    y=addNewPage(doc,y);
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.text(k+':',ML+4,y);
-    doc.setFont('helvetica','normal'); doc.text(v,ML+90,y); y+=12;
-  });
-  y+=6;
- 
-  /* objective */
-  if(d.objective){
-    indSection('Career Objective');
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    y=wrapText(doc,d.objective,ML+4,y,usableW()-8,13); y+=6;
-  }
- 
-  /* experience */
-  if(d.experience&&d.experience.length){
-    indSection('Work Experience');
-    d.experience.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(`${e.role||''} — ${e.company||''}`,ML+4,y);
-      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(e.period||'',ML+4,y+12); doc.setTextColor(...dark);
-      y+=22;
-      (e.responsibilities||e.bullets||[]).forEach(r=>{
-        y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        const rlines=doc.splitTextToSize('• '+r,usableW()-12);
-        rlines.forEach(l=>{doc.text(l,ML+10,y);y+=12;});
-      });
-      y+=6;
-    });
-  }
- 
-  /* education */
-  if(d.education&&d.education.length){
-    indSection('Educational Qualification');
-    doc.setFillColor(240,240,240);
-    doc.rect(ML,y-8,usableW(),12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9);
-    doc.text('Degree',ML+4,y); doc.text('Institution',ML+150,y); doc.text('Year',ML+340,y); doc.text('Marks',ML+400,y);
-    y+=14;
-    d.education.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text(e.degree||'',ML+4,y); doc.text(e.institution||'',ML+150,y);
-      doc.text(e.year||'',ML+340,y); doc.text(e.percentage||e.cgpa||'',ML+400,y);
-      doc.setDrawColor(220,220,220); doc.line(ML,y+4,PW-MR,y+4);
-      y+=14;
-    });
-    y+=6;
-  }
- 
-  /* skills */
-  if(d.skills){
-    indSection('Skills');
-    if(Array.isArray(d.skills)){
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      y=wrapText(doc,d.skills.join('  •  '),ML+4,y,usableW()-8,13); y+=6;
-    } else {
-      Object.entries(d.skills).forEach(([cat,skills])=>{
-        y=addNewPage(doc,y);
-        doc.setFont('helvetica','bold'); doc.setFontSize(9);
-        doc.text(cat.charAt(0).toUpperCase()+cat.slice(1)+':',ML+4,y);
-        doc.setFont('helvetica','normal');
-        y=wrapText(doc,(skills||[]).join(', '),ML+90,y,usableW()-94,13); y+=4;
-      });
-      y+=4;
-    }
-  }
- 
-  /* achievements */
-  if(d.achievements&&d.achievements.length){
-    indSection('Achievements');
-    d.achievements.forEach(a=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+a,ML+4,y); y+=13;
-    });
-    y+=4;
-  }
- 
-  /* hobbies */
-  if(d.hobbies&&d.hobbies.length){
-    indSection('Hobbies & Interests');
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    doc.text(d.hobbies.join('   •   '),ML+4,y); y+=16;
-  }
- 
-  /* declaration */
-  indSection('Declaration');
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+function buildIndianGeneralPDF(d,filename){
+  const doc=newDoc(); const maroon=[128,0,32];
+  doc.setFillColor(...maroon);doc.rect(0,0,PW,68,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text(d.name||'Your Name',PW/2,28,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text([d.email,d.phone,d.location].filter(Boolean).join('   |   '),PW/2,44,{align:'center'});
+  if(d.linkedin)doc.text(d.linkedin,PW/2,57,{align:'center'});
+  let y=88;
+  function sec(t){y=addPage(doc,y);doc.setFillColor(...maroon);doc.rect(ML,y-10,usableW(),14,'F');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(255,255,255);doc.text(t.toUpperCase(),ML+6,y);doc.setTextColor(20,20,20);y+=12;}
+  sec('Personal Details');
+  [['Date of Birth',d.dob||''],['Nationality',d.nationality||'Indian'],['Languages Known',(d.languages_known||[]).join(', ')]].forEach(([k,v])=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(k+':',ML+4,y);doc.setFont('helvetica','normal');doc.text(v,ML+95,y);y+=12;});y+=6;
+  if(d.objective){sec('Career Objective');doc.setFont('helvetica','normal');doc.setFontSize(9);y=wrapText(doc,d.objective,ML+4,y,usableW()-8,13);y+=6;}
+  if(d.experience&&d.experience.length){sec('Work Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(`${e.role||''} — ${e.company||''}`,ML+4,y);doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(e.period||'',ML+4,y+12);doc.setTextColor(20,20,20);y+=22;(e.responsibilities||e.bullets||[]).forEach(r=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);const rl=doc.splitTextToSize('• '+r,usableW()-12);rl.forEach(l=>{doc.text(l,ML+10,y);y+=12;});});y+=6;});}
+  if(d.education&&d.education.length){sec('Educational Qualification');doc.setFillColor(240,240,240);doc.rect(ML,y-8,usableW(),12,'F');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('Degree',ML+4,y);doc.text('Institution',ML+145,y);doc.text('Year',ML+335,y);doc.text('Marks',ML+395,y);y+=14;d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(e.degree||'',ML+4,y);doc.text(e.institution||'',ML+145,y);doc.text(e.year||'',ML+335,y);doc.text(e.percentage||e.cgpa||'',ML+395,y);doc.setDrawColor(220,220,220);doc.line(ML,y+4,PW-MR,y+4);y+=14;});y+=6;}
+  if(d.skills){sec('Skills');doc.setFont('helvetica','normal');doc.setFontSize(9);const sk=Array.isArray(d.skills)?d.skills.join('  •  '):Object.values(d.skills).flat().join('  •  ');y=wrapText(doc,sk,ML+4,y,usableW()-8,13);y+=6;}
+  if(d.achievements&&d.achievements.length){sec('Achievements');d.achievements.forEach(a=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+a,ML+4,y);y+=13;});}
+  if(d.hobbies&&d.hobbies.length){sec('Hobbies & Interests');doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(d.hobbies.join('   •   '),ML+4,y);y+=16;}
+  sec('Declaration');doc.setFont('helvetica','normal');doc.setFontSize(9);
   y=wrapText(doc,'I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.',ML+4,y,usableW()-8,13);
-  y+=20;
-  doc.text('Date: '+new Date().toLocaleDateString('en-IN'),ML+4,y);
-  doc.text('Signature: ___________________',PW-MR-130,y);
- 
-  doc.save(filename+'.pdf');
-  recordDownload(d.name||'resume','resume',selectedStyle);
+  y+=18;doc.text('Date: '+new Date().toLocaleDateString('en-IN'),ML+4,y);doc.text('Signature: ___________________',PW-MR-135,y);
+  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
  
-/* INDIAN IT PDF */
-function buildIndianITPDF(d, filename) {
-  const doc = newDoc();
-  const dark=[20,20,20]; const teal=[0,100,100]; const gray=[100,100,100]; const lightteal=[230,245,245];
-  let y=MT;
- 
-  /* header */
-  doc.setFillColor(...teal);
-  doc.rect(0,0,PW,80,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold'); doc.setFontSize(20);
-  doc.text(d.name||'Your Name',ML,35);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  const cp=[d.email,d.phone,d.location].filter(Boolean).join('  |  ');
-  doc.text(cp,ML,50);
-  const links=[d.linkedin,d.github].filter(Boolean).join('  |  ');
-  if(links) doc.text(links,ML,63);
-  y=100;
- 
-  function itSection(title){
-    y=addNewPage(doc,y);
-    doc.setFillColor(...lightteal);
-    doc.rect(ML,y-11,usableW(),15,'F');
-    doc.setFillColor(...teal); doc.rect(ML,y-11,3,15,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...teal);
-    doc.text(title.toUpperCase(),ML+8,y);
-    doc.setTextColor(...dark); y+=12;
-  }
- 
-  /* summary */
-  if(d.summary){
-    itSection('Professional Summary');
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    y=wrapText(doc,d.summary,ML+4,y,usableW()-8,13); y+=8;
-  }
- 
-  /* technical skills */
-  if(d.technical_skills){
-    itSection('Technical Skills');
-    Object.entries(d.technical_skills).forEach(([cat,skills])=>{
-      if(!skills||!skills.length) return;
-      y=addNewPage(doc,y);
-      doc.setFillColor(245,245,245); doc.rect(ML,y-9,usableW(),12,'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...teal);
-      doc.text(cat.replace(/_/g,' ').toUpperCase(),ML+4,y);
-      doc.setTextColor(...dark); doc.setFont('helvetica','normal');
-      const sw=doc.getTextWidth(cat.replace(/_/g,' ').toUpperCase())+ML+14;
-      const skillStr=skills.join('   •   ');
-      const slines=doc.splitTextToSize(skillStr,PW-MR-sw-4);
-      doc.text(slines[0]||'',sw,y);
-      y+=12;
-      if(slines.length>1){slines.slice(1).forEach(l=>{doc.text(l,ML+4,y);y+=12;});}
-    });
-    y+=6;
-  }
- 
-  /* experience */
-  if(d.experience&&d.experience.length){
-    itSection('Work Experience');
-    d.experience.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
-      doc.text(e.role||'',ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.company||''}  |  ${e.period||''}`,ML+4,y+12);
-      if(e.tech_stack&&e.tech_stack.length){
-        doc.setTextColor(...teal);
-        doc.text('Stack: '+e.tech_stack.join(', '),ML+4,y+23);
-        y+=10;
-      }
-      doc.setTextColor(...dark); y+=26;
-      (e.bullets||[]).forEach(b=>{
-        y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        const blines=doc.splitTextToSize('▸  '+b,usableW()-14);
-        blines.forEach(l=>{doc.text(l,ML+10,y);y+=12;});
-      });
-      y+=8;
-    });
-  }
- 
-  /* projects */
-  if(d.projects&&d.projects.length){
-    itSection('Key Projects');
-    d.projects.forEach(p=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
-      doc.text(p.title||'',ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...teal);
-      doc.text('Tech: '+(p.tech_stack||[]).join(', ')+'  |  Role: '+(p.role||'')+'  |  '+(p.duration||''),ML+4,y+12);
-      doc.setTextColor(...dark); y+=22;
-      if(p.description){y=wrapText(doc,p.description,ML+4,y,usableW()-8,12);};
-      (p.achievements||[]).forEach(a=>{
-        y=addNewPage(doc,y); doc.setFontSize(9);
-        doc.text('• '+a,ML+10,y); y+=12;
-      });
-      y+=6;
-    });
-  }
- 
-  /* education */
-  if(d.education&&d.education.length){
-    itSection('Education');
-    d.education.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(e.degree||'',ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.institution||''}  |  ${e.year||''}  |  CGPA: ${e.cgpa||e.grade||''}`,ML+4,y+12);
-      doc.setTextColor(...dark); y+=26;
-    });
-  }
- 
-  /* certifications */
-  if(d.certifications&&d.certifications.length){
-    itSection('Certifications');
-    d.certifications.forEach(c=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+c,ML+4,y); y+=12;
-    });
-  }
- 
-  /* achievements */
-  if(d.achievements&&d.achievements.length){
-    itSection('Achievements');
-    d.achievements.forEach(a=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+a,ML+4,y); y+=12;
-    });
-  }
- 
-  doc.save(filename+'.pdf');
-  recordDownload(d.name||'resume','resume',selectedStyle);
+function buildIndianITPDF(d,filename){
+  const doc=newDoc(); const teal=[0,100,100]; const lt=[230,245,245];
+  doc.setFillColor(...teal);doc.rect(0,0,PW,78,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);
+  doc.text(d.name||'Your Name',ML,33);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text([d.email,d.phone,d.location].filter(Boolean).join('  |  '),ML,48);
+  if(d.linkedin||d.github)doc.text([d.linkedin,d.github].filter(Boolean).join('  |  '),ML,61);
+  let y=98;
+  function sec(t){y=addPage(doc,y);doc.setFillColor(...lt);doc.rect(ML,y-11,usableW(),15,'F');doc.setFillColor(...teal);doc.rect(ML,y-11,3,15,'F');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...teal);doc.text(t.toUpperCase(),ML+8,y);doc.setTextColor(20,20,20);y+=12;}
+  if(d.summary){sec('Professional Summary');doc.setFont('helvetica','normal');doc.setFontSize(9);y=wrapText(doc,d.summary,ML+4,y,usableW()-8,13);y+=8;}
+  if(d.technical_skills){sec('Technical Skills');Object.entries(d.technical_skills).forEach(([cat,skills])=>{if(!skills||!skills.length)return;y=addPage(doc,y);doc.setFillColor(245,245,245);doc.rect(ML,y-9,usableW(),12,'F');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...teal);const label=cat.replace(/_/g,' ');doc.text(label,ML+4,y);doc.setTextColor(20,20,20);doc.setFont('helvetica','normal');const sw=doc.getTextWidth(label)+ML+14;const sl=doc.splitTextToSize((skills||[]).join('   •   '),PW-MR-sw-4);doc.text(sl[0]||'',sw,y);y+=12;if(sl.length>1){sl.slice(1).forEach(l=>{doc.text(l,ML+4,y);y+=12;});}});y+=6;}
+  if(d.experience&&d.experience.length){sec('Work Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(20,20,20);doc.text(e.role||'',ML+4,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.company||''}  |  ${e.period||''}`,ML+4,y+12);if(e.tech_stack&&e.tech_stack.length){doc.setTextColor(...teal);doc.text('Stack: '+e.tech_stack.join(', '),ML+4,y+23);y+=10;}doc.setTextColor(20,20,20);y+=26;(e.bullets||[]).forEach(b=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);const bl=doc.splitTextToSize('▸  '+b,usableW()-14);bl.forEach(l=>{doc.text(l,ML+10,y);y+=12;});});y+=8;});}
+  if(d.projects&&d.projects.length){sec('Key Projects');d.projects.forEach(p=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(20,20,20);doc.text(p.title||'',ML+4,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...teal);doc.text('Tech: '+(p.tech_stack||[]).join(', ')+'  |  Role: '+(p.role||'')+'  |  '+(p.duration||''),ML+4,y+12);doc.setTextColor(20,20,20);y+=22;if(p.description){y=wrapText(doc,p.description,ML+4,y,usableW()-8,12);}(p.achievements||[]).forEach(a=>{y=addPage(doc,y);doc.text('• '+a,ML+10,y);y+=12;});y+=6;});}
+  if(d.education&&d.education.length){sec('Education');d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.degree||'',ML+4,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.institution||''}  |  ${e.year||''}  |  CGPA: ${e.cgpa||e.grade||''}`,ML+4,y+12);doc.setTextColor(20,20,20);y+=26;});}
+  if(d.certifications&&d.certifications.length){sec('Certifications');d.certifications.forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML+4,y);y+=12;});}
+  if(d.achievements&&d.achievements.length){sec('Achievements');d.achievements.forEach(a=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+a,ML+4,y);y+=12;});}
+  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
  
-/* INDIAN MBA PDF */
-function buildIndianMBAPDF(d, filename) {
-  const doc = newDoc();
-  const dark=[20,20,20]; const navy=[0,32,96]; const gold=[180,140,0]; const gray=[100,100,100]; const lightnavy=[235,240,250];
-  let y=MT;
- 
-  /* header */
-  doc.setFillColor(...navy);
-  doc.rect(0,0,PW,75,'F');
-  doc.setFillColor(...gold); doc.rect(0,72,PW,3,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold'); doc.setFontSize(20);
-  doc.text(d.name||'Your Name',PW/2,32,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  const cp=[d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('   |   ');
-  doc.text(cp,PW/2,48,{align:'center'});
-  y=95;
- 
-  function mbaSection(title){
-    y=addNewPage(doc,y);
-    doc.setFillColor(...lightnavy);
-    doc.rect(ML,y-11,usableW(),15,'F');
-    doc.setFillColor(...gold); doc.rect(ML,y-11,3,15,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...navy);
-    doc.text(title.toUpperCase(),ML+8,y);
-    doc.setTextColor(...dark); y+=12;
-  }
- 
-  /* objective */
-  if(d.objective){
-    mbaSection('Career Objective');
-    doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    y=wrapText(doc,d.objective,ML+4,y,usableW()-8,13); y+=8;
-  }
- 
-  /* education prominent */
-  if(d.education&&d.education.length){
-    mbaSection('Education');
-    d.education.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...navy);
-      doc.text(e.degree||'',ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(`${e.institution||''}  |  Batch: ${e.year||''}  |  ${e.cgpa||e.grade||''}`,ML+4,y+12);
-      doc.setTextColor(...dark); y+=24;
-      (e.achievements||[]).forEach(a=>{
-        y=addNewPage(doc,y); doc.setFontSize(9);
-        doc.text('• '+a,ML+10,y); y+=12;
-      });
-      y+=4;
-    });
-  }
- 
-  /* experience */
-  if(d.experience&&d.experience.length){
-    mbaSection('Work Experience');
-    d.experience.forEach(e=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
-      doc.text(`${e.role||''} — ${e.company||''}`,ML+4,y);
-      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(...gray);
-      doc.text(e.period||'',ML+4,y+12); doc.setTextColor(...dark);
-      y+=22;
-      (e.bullets||[]).forEach(b=>{
-        y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-        const blines=doc.splitTextToSize('• '+b,usableW()-12);
-        blines.forEach(l=>{doc.text(l,ML+10,y);y+=12;});
-      });
-      y+=6;
-    });
-  }
- 
-  /* internships */
-  if(d.internships&&d.internships.length){
-    mbaSection('Internships');
-    d.internships.forEach(i=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(`${i.role||''} — ${i.company||''}  (${i.duration||''})`,ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      y+=13;
-      if(i.outcome){y=wrapText(doc,'Outcome: '+i.outcome,ML+10,y,usableW()-14,12);}
-      y+=6;
-    });
-  }
- 
-  /* projects */
-  if(d.projects&&d.projects.length){
-    mbaSection('Projects');
-    d.projects.forEach(p=>{
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(10);
-      doc.text(p.title||'',ML+4,y); y+=13;
-      doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      if(p.context){y=wrapText(doc,'Context: '+p.context,ML+10,y,usableW()-14,12);}
-      if(p.outcome){y=wrapText(doc,'Outcome: '+p.outcome,ML+10,y,usableW()-14,12);}
-      y+=6;
-    });
-  }
- 
-  /* leadership */
-  if(d.leadership&&d.leadership.length){
-    mbaSection('Leadership & Extra-curriculars');
-    d.leadership.forEach(l=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+l,ML+4,y); y+=13;
-    });
-    y+=4;
-  }
- 
-  /* skills */
-  if(d.skills){
-    mbaSection('Skills');
-    Object.entries(d.skills).forEach(([cat,skills])=>{
-      if(!skills||!skills.length) return;
-      y=addNewPage(doc,y);
-      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...navy);
-      doc.text(cat.charAt(0).toUpperCase()+cat.slice(1)+': ',ML+4,y);
-      doc.setFont('helvetica','normal'); doc.setTextColor(...dark);
-      const sw=doc.getTextWidth(cat.charAt(0).toUpperCase()+cat.slice(1)+': ');
-      y=wrapText(doc,(skills||[]).join(', '),ML+4+sw,y,usableW()-sw-8,12); y+=4;
-    });
-    y+=4;
-  }
- 
-  /* certifications */
-  if(d.certifications&&d.certifications.length){
-    mbaSection('Certifications & Achievements');
-    [...(d.certifications||[]),...(d.achievements||[])].forEach(c=>{
-      y=addNewPage(doc,y); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      doc.text('• '+c,ML+4,y); y+=12;
-    });
-  }
- 
-  doc.save(filename+'.pdf');
-  recordDownload(d.name||'resume','resume',selectedStyle);
+function buildIndianMBAPDF(d,filename){
+  const doc=newDoc(); const navy=[0,32,96]; const gold=[180,140,0]; const ln=[235,240,250];
+  doc.setFillColor(...navy);doc.rect(0,0,PW,73,'F');
+  doc.setFillColor(...gold);doc.rect(0,70,PW,3,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);
+  doc.text(d.name||'Your Name',PW/2,30,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text([d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('   |   '),PW/2,46,{align:'center'});
+  let y=93;
+  function sec(t){y=addPage(doc,y);doc.setFillColor(...ln);doc.rect(ML,y-11,usableW(),15,'F');doc.setFillColor(...gold);doc.rect(ML,y-11,3,15,'F');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...navy);doc.text(t.toUpperCase(),ML+8,y);doc.setTextColor(20,20,20);y+=12;}
+  if(d.objective){sec('Career Objective');doc.setFont('helvetica','normal');doc.setFontSize(9);y=wrapText(doc,d.objective,ML+4,y,usableW()-8,13);y+=8;}
+  if(d.education&&d.education.length){sec('Education');d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...navy);doc.text(e.degree||'',ML+4,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.institution||''}  |  Batch: ${e.year||''}  |  ${e.cgpa||e.grade||''}`,ML+4,y+12);doc.setTextColor(20,20,20);y+=24;(e.achievements||[]).forEach(a=>{y=addPage(doc,y);doc.setFontSize(9);doc.text('• '+a,ML+10,y);y+=12;});y+=4;});}
+  if(d.experience&&d.experience.length){sec('Work Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(20,20,20);doc.text(`${e.role||''} — ${e.company||''}`,ML+4,y);doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(e.period||'',ML+4,y+12);doc.setTextColor(20,20,20);y+=22;(e.bullets||[]).forEach(b=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);const bl=doc.splitTextToSize('• '+b,usableW()-12);bl.forEach(l=>{doc.text(l,ML+10,y);y+=12;});});y+=6;});}
+  if(d.internships&&d.internships.length){sec('Internships');d.internships.forEach(i=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(`${i.role||''} — ${i.company||''}  (${i.duration||''})`,ML+4,y);doc.setFont('helvetica','normal');doc.setFontSize(9);y+=13;if(i.outcome){y=wrapText(doc,'Outcome: '+i.outcome,ML+10,y,usableW()-14,12);}y+=6;});}
+  if(d.leadership&&d.leadership.length){sec('Leadership & Extra-curriculars');d.leadership.forEach(l=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+l,ML+4,y);y+=13;});y+=4;}
+  if(d.skills){sec('Skills');Object.entries(d.skills).forEach(([cat,skills])=>{if(!skills||!skills.length)return;y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...navy);const label=cat.charAt(0).toUpperCase()+cat.slice(1)+': ';doc.text(label,ML+4,y);doc.setFont('helvetica','normal');doc.setTextColor(20,20,20);y=wrapText(doc,(skills||[]).join(', '),ML+4+doc.getTextWidth(label),y,usableW()-doc.getTextWidth(label)-8,12);y+=4;});y+=4;}
+  if(d.certifications&&d.certifications.length){sec('Certifications & Achievements');[...(d.certifications||[]),...(d.achievements||[])].forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML+4,y);y+=12;});}
+  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
  
-/* COVER LETTER PDF */
-function downloadCoverLetterPDF(clStr, filename, jobTitle) {
-  const cl = JSON.parse(clStr);
-  const doc = newDoc();
-  const dark=[20,20,20]; const accent=[10,60,130]; const gray=[100,100,100];
-  let y=MT;
- 
-  /* sender info */
-  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...dark);
-  doc.text(cl.sender_name||'', ML, y); y+=18;
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
-  y+=4;
- 
-  /* date */
-  doc.setTextColor(...dark);
-  doc.text(cl.date||new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}), ML, y); y+=20;
- 
-  /* recipient */
-  doc.setFont('helvetica','normal'); doc.setFontSize(10);
-  doc.text(cl.hiring_manager||'Hiring Manager', ML, y); y+=14;
-  doc.text(cl.company||'', ML, y); y+=20;
- 
-  /* subject */
-  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...accent);
-  doc.text('Re: Application for the position of '+(cl.role||jobTitle||''), ML, y); y+=6;
-  doc.setDrawColor(...accent); doc.line(ML,y,PW-MR,y); y+=16;
- 
-  /* salutation */
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
-  doc.text('Dear '+(cl.hiring_manager||'Hiring Manager')+',', ML, y); y+=18;
- 
-  /* paragraphs */
-  (cl.paragraphs||[]).forEach(p=>{
-    y=addNewPage(doc,y);
-    y=wrapText(doc,p,ML,y,usableW(),15); y+=12;
-  });
- 
-  /* sign off */
-  y+=10;
-  doc.text('Yours sincerely,', ML, y); y+=30;
-  doc.setFont('helvetica','bold');
-  doc.text(cl.sender_name||'', ML, y); y+=14;
- 
-  doc.save(filename+'.pdf');
-  recordDownload(cl.role||jobTitle||'Cover Letter','cover_letter',selectedStyle);
+function downloadCoverLetterPDF(clStr,filename,jobTitle){
+  const cl=JSON.parse(clStr); const doc=newDoc(); let y=MT;
+  const navy=[10,60,130]; const dark=[20,20,20]; const gray=[100,100,100];
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(...dark);
+  doc.text(cl.sender_name||'',ML,y);y+=18;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...gray);
+  doc.text(cl.date||new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}),ML,y);y+=22;
+  doc.setTextColor(...dark);doc.setFontSize(10);
+  doc.text(cl.hiring_manager||'Hiring Manager',ML,y);y+=14;
+  doc.text(cl.company||'',ML,y);y+=22;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...navy);
+  y=wrapText(doc,'Re: Application for — '+(cl.role||jobTitle||''),ML,y,usableW(),14);
+  y+=2;doc.setDrawColor(...navy);doc.line(ML,y,PW-MR,y);y+=16;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(...dark);
+  doc.text('Dear '+(cl.hiring_manager||'Hiring Manager')+',',ML,y);y+=18;
+  (cl.paragraphs||[]).forEach(p=>{y=addPage(doc,y);y=wrapText(doc,p,ML,y,usableW(),15);y+=12;});
+  y+=10;doc.text('Yours sincerely,',ML,y);y+=30;
+  doc.setFont('helvetica','bold');doc.text(cl.sender_name||'',ML,y);
+  doc.save(filename+'.pdf'); recordDownload(cl.role||jobTitle,'cover_letter',selectedStyle);
 }
  
-/* History */
-function recordDownload(jobTitle, docType, style) {
+function recordDownload(jobTitle,docType,style){
   const h=JSON.parse(localStorage.getItem('dl_history')||'[]');
-  h.unshift({jobTitle:jobTitle||'Unknown role',docType,style,date:new Date().toISOString()});
+  h.unshift({jobTitle:jobTitle||'Unknown',docType,style,date:new Date().toISOString()});
   localStorage.setItem('dl_history',JSON.stringify(h.slice(0,200)));
 }
-function getStyleLabel(s){return{european:'European',american:'American',  'indian-general':'Indian General','indian-it':'Indian IT','indian-mba':'Indian MBA'}[s]||s;}
-function getBadgeClass(s){return s.startsWith('indian')?'in':s==='american'?'us':'eu';}
  
 function renderHistory(){
   const h=JSON.parse(localStorage.getItem('dl_history')||'[]');
