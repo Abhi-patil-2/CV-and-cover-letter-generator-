@@ -206,38 +206,43 @@
 <script>
 const GEMINI_KEY = 'AIzaSyCepjsccpP2O6Rod9wGsbFuA1As5OKx-ok';
 const GEMINI_MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-1.0-pro',
-  'gemini-pro'
+  'gemini-2.0-flash-lite',
+  'gemini-2.0-flash-001',
+  'gemini-1.5-flash-001',
+  'gemini-1.5-flash-002',
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-flash-8b-001'
 ];
  
 async function callAI(prompt, maxTokens) {
   let lastError = '';
-  for (const model of GEMINI_MODELS) {
-    try {
-      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_KEY;
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: maxTokens || 4000 }
-        })
-      });
-      const data = await resp.json();
-      if (!resp.ok) {
-        lastError = model + ': ' + (data.error?.message || JSON.stringify(data));
+  const versions = ['v1beta', 'v1'];
+  for (const ver of versions) {
+    for (const model of GEMINI_MODELS) {
+      try {
+        const url = 'https://generativelanguage.googleapis.com/' + ver + '/models/' + model + ':generateContent?key=' + GEMINI_KEY;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: maxTokens || 4000 }
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          lastError = ver + '/' + model + ': ' + (data.error?.message || JSON.stringify(data));
+          continue;
+        }
+        if (!data.candidates || !data.candidates[0]) {
+          lastError = ver + '/' + model + ': empty response';
+          continue;
+        }
+        return data.candidates[0].content.parts[0].text;
+      } catch(e) {
+        lastError = ver + '/' + model + ': ' + e.message;
         continue;
       }
-      if (!data.candidates || !data.candidates[0]) {
-        lastError = model + ': empty response';
-        continue;
-      }
-      return data.candidates[0].content.parts[0].text;
-    } catch(e) {
-      lastError = model + ': ' + e.message;
-      continue;
     }
   }
   throw new Error('All models failed. Last error: ' + lastError);
