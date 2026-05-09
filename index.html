@@ -204,25 +204,43 @@
 </div>
  
 <script>
-const GEMINI_KEY = 'AIzaSyCqzmVW6EK4uOXTXo_Vl9zvI4p4i28Vjp0';
+const GEMINI_KEY = 'AIzaSyCepjsccpP2O6Rod9wGsbFuA1As5OKx-ok';
+const GEMINI_MODELS = [
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-latest',
+  'gemini-1.0-pro',
+  'gemini-pro'
+];
  
 async function callAI(prompt, maxTokens) {
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview:generateContent?key=' + GEMINI_KEY;
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens || 4000 }
-    })
-  });
-  const data = await resp.json();
-  if (!resp.ok) {
-    const msg = data.error?.message || JSON.stringify(data);
-    throw new Error(msg);
+  let lastError = '';
+  for (const model of GEMINI_MODELS) {
+    try {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_KEY;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: maxTokens || 4000 }
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        lastError = model + ': ' + (data.error?.message || JSON.stringify(data));
+        continue;
+      }
+      if (!data.candidates || !data.candidates[0]) {
+        lastError = model + ': empty response';
+        continue;
+      }
+      return data.candidates[0].content.parts[0].text;
+    } catch(e) {
+      lastError = model + ': ' + e.message;
+      continue;
+    }
   }
-  if (!data.candidates || !data.candidates[0]) throw new Error('Empty response: ' + JSON.stringify(data));
-  return data.candidates[0].content.parts[0].text;
+  throw new Error('All models failed. Last error: ' + lastError);
 }
  
 let selectedStyle = 'european';
