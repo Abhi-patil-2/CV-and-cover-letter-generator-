@@ -350,19 +350,19 @@ IMPORTANT: Your entire response must be ONE valid JSON object starting with { an
     const raw = await callAI(prompt, 4000);
     let parsed;
     try {
-      // Strip markdown code fences if present
       let cleaned = raw.trim();
-      cleaned = cleaned.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+      // Remove ALL variations of markdown code fences
+      cleaned = cleaned.replace(/^```json/i, '').replace(/^```/i, '').replace(/```$/i, '').trim();
+      // Extract just the JSON object
+      const start = cleaned.indexOf('{');
+      const end = cleaned.lastIndexOf('}');
+      if (start !== -1 && end !== -1) {
+        cleaned = cleaned.substring(start, end + 1);
+      }
       try {
         parsed = JSON.parse(cleaned);
       } catch(e1) {
-        // Try to extract JSON object
-        const m = cleaned.match(/\{[\s\S]*\}/);
-        if (m) {
-          try { parsed = JSON.parse(m[0]); } catch(e2) { parsed = {}; }
-        } else {
-          parsed = {};
-        }
+        parsed = {};
       }
     } catch(e) { parsed = {}; }
     if (!parsed || Object.keys(parsed).length === 0) {
