@@ -224,7 +224,7 @@ async function callAI(prompt, maxTokens) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: maxTokens || 4000 }
+            generationConfig: { maxOutputTokens: maxTokens || 4000, responseMimeType: 'application/json' }
           })
         });
         const data = await resp.json();
@@ -323,7 +323,8 @@ async function generate() {
     :selectedDoc==='cv'?'Generate resume JSON only.'
     :'Generate cover_letter JSON only.';
  
-  const prompt = `You are an expert career consultant. Produce highly tailored application documents.
+  const styleJson = getStylePrompt();
+  const prompt = `You are an expert career consultant. Return ONLY a valid JSON object. No markdown, no code fences, no explanation, no text before or after. Just the raw JSON.
  
 CANDIDATE PROFILE:
 ${profile}
@@ -331,20 +332,19 @@ ${profile}
 JOB DESCRIPTION:
 ${jd}
  
-${langNote}
+${langNote ? langNote : ''}
  
 TASK: ${docRequest}
  
-For the resume use EXACTLY this JSON structure:
-${getStylePrompt()}
+Use this JSON structure for the resume:
+${styleJson}
  
-For the cover letter include:
-"cover_letter":{"date":"9 May 2026","hiring_manager":"Hiring Manager","company":"Company from JD","role":"Role from JD","paragraphs":["para1","para2","para3","para4"],"sender_name":"Candidate Name"}
+For cover letter use this structure:
+"cover_letter":{"date":"${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}","hiring_manager":"Hiring Manager","company":"[company from JD]","role":"[role from JD]","paragraphs":["paragraph 1","paragraph 2","paragraph 3"],"sender_name":"[candidate name]"}
  
-Also include: "job_title":"exact job title", "company_name":"company name"
+Also add: "job_title":"[job title from JD]"
  
-CRITICAL: Return ONLY raw valid JSON. No markdown. No code fences. No explanation. Just JSON.
-Tailor ALL content to match the job description keywords.`;
+IMPORTANT: Your entire response must be ONE valid JSON object starting with { and ending with }. No other text.`;
  
   try {
     const raw = await callAI(prompt, 4000);
