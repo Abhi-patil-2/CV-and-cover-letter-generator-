@@ -446,32 +446,142 @@ function wrapText(doc,text,x,y,maxW,lh){
  
 function buildEuropeanPDF(d,filename){
   const doc=newDoc();
-  doc.setFillColor(0,68,130); doc.rect(0,0,PW,105,'F');
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22);
-  doc.text(d.name||'Your Name',ML,40);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  doc.text([d.email,d.phone,d.location,d.linkedin].filter(Boolean).join('   |   '),ML,56);
-  if(d.summary){const sl=doc.splitTextToSize(d.summary,PW-ML-MR-10);let sy=70;sl.slice(0,3).forEach(l=>{doc.text(l,ML,sy);sy+=12;});}
-  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('CURRICULUM VITAE',PW-MR-85,18);
-  doc.setTextColor(20,20,20);
-  let y=125;
-  function sec(title){
-    y=addPage(doc,y);
-    doc.setFillColor(230,241,251); doc.rect(ML,y-12,usableW(),16,'F');
-    doc.setFillColor(0,68,130); doc.rect(ML,y-12,4,16,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,68,130);
-    doc.text(title.toUpperCase(),ML+10,y); doc.setTextColor(20,20,20); y+=12;
-  }
-  if(d.experience&&d.experience.length){sec('Work Experience');d.experience.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.role||'',ML+6,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.company||''}  |  ${e.period||''}  |  ${e.location||''}`,ML+6,y+13);doc.setTextColor(20,20,20);y+=24;(e.bullets||e.responsibilities||[]).forEach(b=>{y=addPage(doc,y);const bl=doc.splitTextToSize('• '+b,usableW()-12);bl.forEach(l=>{doc.text(l,ML+10,y);y+=12;});});y+=6;});}
-  if(d.education&&d.education.length){sec('Education');d.education.forEach(e=>{y=addPage(doc,y);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(e.degree||'',ML+6,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100,100,100);doc.text(`${e.institution||''}  |  ${e.year||''}${e.grade||e.cgpa?'  |  '+(e.grade||e.cgpa):''}`,ML+6,y+13);doc.setTextColor(20,20,20);y+=28;});}
-  if(d.skills&&d.skills.length){sec('Skills');doc.setFont('helvetica','normal');doc.setFontSize(9);y=wrapText(doc,d.skills.join('   •   '),ML+6,y,usableW()-12,13);y+=6;}
-  if(d.languages&&d.languages.length){sec('Languages');d.languages.forEach(l=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(`${l.language||l}:  ${l.level||''}`,ML+6,y);y+=13;});y+=4;}
-  if(d.certifications&&d.certifications.length){sec('Certifications');d.certifications.forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML+6,y);y+=13;});}
-  const tp=doc.internal.getNumberOfPages();
-  for(let i=1;i<=tp;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Page ${i} / ${tp}`,PW/2,PH-20,{align:'center'});}
-  doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
-}
+  const blue=[0,68,130]; const lblue=[232,241,250]; const dark=[20,20,20]; const gray=[80,80,80];
  
+  doc.setFont('helvetica','bold'); doc.setFontSize(26); doc.setTextColor(...blue);
+  doc.text(d.name||'Your Name', ML, 48);
+ 
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...blue);
+  doc.text('europass', PW-MR-36, 28);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...gray);
+  doc.text('Curriculum Vitae', PW-MR-42, 38);
+  doc.setFillColor(...blue); doc.circle(PW-MR-55, 28, 10, 'F');
+  doc.setTextColor(255,215,0); doc.setFontSize(8); doc.text('*', PW-MR-57, 31);
+ 
+  doc.setDrawColor(...blue); doc.setLineWidth(0.5); doc.line(ML, 55, PW-MR, 55);
+ 
+  let y = 68;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...dark);
+  const pinfo = [d.phone,d.email,d.location,d.linkedin].filter(Boolean);
+  y = wrapText(doc, pinfo.join('   |   '), ML, y, usableW(), 12); y += 4;
+ 
+  if(d.summary){
+    doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(...gray);
+    const sl = doc.splitTextToSize(d.summary, usableW());
+    sl.forEach(l => { doc.text(l, ML, y); y += 12; });
+    y += 4;
+  }
+ 
+  doc.setDrawColor(200,210,225); doc.setLineWidth(0.3); doc.line(ML, y, PW-MR, y); y += 14;
+ 
+  function sec(title){
+    y = addPage(doc, y);
+    doc.setFillColor(...blue); doc.circle(ML+3, y-3, 3, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...blue);
+    doc.text(title.toUpperCase(), ML+10, y);
+    doc.setDrawColor(...blue); doc.setLineWidth(0.4);
+    doc.line(ML+10, y+2, PW-MR, y+2);
+    doc.setTextColor(...dark); y += 16;
+  }
+ 
+  const dateW = 100;
+  const contentX = ML + dateW;
+  const contentW = usableW() - dateW;
+ 
+  if(d.experience && d.experience.length){
+    sec('Work Experience');
+    d.experience.forEach(e => {
+      y = addPage(doc, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      const periodLines = doc.splitTextToSize(e.period||'', dateW-4);
+      periodLines.forEach(l => { doc.text(l, ML, y); y += 12; });
+      const expStartY = y - (periodLines.length * 12);
+      y = expStartY;
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
+      doc.text((e.role||'').toUpperCase(), contentX, y); y += 13;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      doc.text([e.company, e.location].filter(Boolean).join(' — '), contentX, y); y += 13;
+      doc.setTextColor(...dark);
+      (e.bullets||e.responsibilities||[]).forEach(b => {
+        y = addPage(doc, y);
+        const bl = doc.splitTextToSize('• ' + b, contentW - 4);
+        bl.forEach(l => { doc.text(l, contentX + 4, y); y += 12; });
+      });
+      y += 6;
+      doc.setDrawColor(220,228,240); doc.setLineWidth(0.2); doc.line(ML, y, PW-MR, y); y += 8;
+    });
+  }
+ 
+  if(d.education && d.education.length){
+    sec('Education and Training');
+    d.education.forEach(e => {
+      y = addPage(doc, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      doc.text(e.year||'', ML, y);
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
+      doc.text(e.degree||'', contentX, y); y += 13;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      doc.text(e.institution||'', contentX, y); y += 13;
+      if(e.grade||e.cgpa){ doc.text('Grade: '+(e.grade||e.cgpa), contentX, y); y += 12; }
+      doc.setTextColor(...dark);
+      doc.setDrawColor(220,228,240); doc.setLineWidth(0.2); doc.line(ML, y, PW-MR, y); y += 10;
+    });
+  }
+ 
+  if(d.languages && d.languages.length){
+    sec('Language Skills');
+    const native = d.languages.filter(l => (l.level||'').toLowerCase().includes('native') || (l.level||'').toLowerCase().includes('mother'));
+    const other = d.languages.filter(l => !(l.level||'').toLowerCase().includes('native') && !(l.level||'').toLowerCase().includes('mother'));
+    if(native.length){
+      y = addPage(doc, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      doc.text('Mother tongue(s)', ML, y);
+      doc.setFont('helvetica','bold'); doc.setTextColor(...dark);
+      doc.text(native.map(l=>l.language||l).join('   |   '), contentX, y); y += 16;
+      doc.setFont('helvetica','normal');
+    }
+    other.forEach(l => {
+      y = addPage(doc, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+      doc.text(l.language||'', ML, y);
+      doc.setTextColor(...dark);
+      doc.text(l.level||'', contentX, y); y += 13;
+    });
+    y += 4;
+  }
+ 
+  if(d.skills && d.skills.length){
+    sec('Digital and Job-related Skills');
+    y = addPage(doc, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...gray);
+    doc.text('Skills', ML, y);
+    doc.setTextColor(...dark);
+    const skillLines = doc.splitTextToSize(d.skills.join('   |   '), contentW);
+    skillLines.forEach(l => { y = addPage(doc, y); doc.text(l, contentX, y); y += 12; });
+    y += 8;
+  }
+ 
+  if(d.certifications && d.certifications.length){
+    sec('Certifications');
+    d.certifications.forEach(c => {
+      y = addPage(doc, y);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...dark);
+      doc.text('• '+c, contentX, y); y += 13;
+    });
+  }
+ 
+  const tp = doc.internal.getNumberOfPages();
+  for(let i=1;i<=tp;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(150,150,150);
+    doc.text('Page '+i+' / '+tp, PW/2, PH-20, {align:'center'});
+    doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(...blue);
+    doc.text('europass', PW-MR, PH-20, {align:'right'});
+  }
+ 
+  doc.save(filename+'.pdf');
+  recordDownload(d.name,'resume',selectedStyle);
+}
 function buildAmericanPDF(d,filename){
   const doc=newDoc(); let y=MT;
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(20,20,20);
