@@ -102,7 +102,7 @@
     <button class="tab" onclick="switchTab('history')">History</button>
     <button class="tab" onclick="switchTab('help')">Help</button>
   </div>
- 
+
   <div id="tab-generate">
     <div class="notice">Each CV style produces a <strong>properly formatted PDF</strong> — real Europass layout, ATS-clean American, and structured Indian formats.</div>
     <div class="card">
@@ -152,7 +152,7 @@
     <button class="btn-primary" id="gen-btn" onclick="generate()">Generate documents</button>
     <div id="results" style="margin-top:1rem"></div>
   </div>
- 
+
   <div id="tab-profile" style="display:none">
     <div class="card">
       <label class="field-label">Your profile / existing resume</label>
@@ -162,7 +162,7 @@
     <button class="btn-primary" onclick="saveProfile()">Save profile</button>
     <div id="profile-saved" class="status-msg" style="display:none">Profile saved successfully.</div>
   </div>
- 
+
   <div id="tab-history" style="display:none">
     <div class="stat-row">
       <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total downloads</div></div>
@@ -177,7 +177,7 @@
       <div id="history-list"><div class="empty-hist">No downloads yet.</div></div>
     </div>
   </div>
- 
+
   <div id="tab-help" style="display:none">
     <div class="card">
       <div class="section-title">How to use</div>
@@ -202,7 +202,7 @@
     </div>
   </div>
 </div>
- 
+
 <script>
 const GEMINI_KEY = 'AIzaSyCepjsccpP2O6Rod9wGsbFuA1As5OKx-ok';
 const GEMINI_MODELS = [
@@ -211,7 +211,7 @@ const GEMINI_MODELS = [
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite'
 ];
- 
+
 async function callAI(prompt, maxTokens) {
   let lastError = '';
   const versions = ['v1beta', 'v1'];
@@ -245,11 +245,11 @@ async function callAI(prompt, maxTokens) {
   }
   throw new Error('All models failed. Last error: ' + lastError);
 }
- 
+
 let selectedStyle = 'european';
 let selectedDoc = 'both';
 const styleIds = { european:'btn-eu', american:'btn-us', 'indian-general':'btn-in-gen', 'indian-it':'btn-in-it', 'indian-mba':'btn-in-mba' };
- 
+
 function switchTab(tab) {
   ['generate','profile','history','help'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'':'none');
   document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['generate','profile','history','help'][i]===tab));
@@ -275,7 +275,7 @@ window.onload = () => {
   const saved = localStorage.getItem('career_profile');
   if (saved) document.getElementById('profile-text').value = saved;
 };
- 
+
 async function detectLanguage() {
   const jd = document.getElementById('job-desc').value.trim();
   if (!jd) { alert('Paste a job description first.'); return; }
@@ -289,7 +289,7 @@ async function detectLanguage() {
     if (match) sel.value=match.value;
   } catch(e) { el.textContent='Could not detect. Please select manually.'; }
 }
- 
+
 function getStylePrompt() {
   const s = selectedStyle;
   if (s==='european') return `European Europass 2024 format. Return JSON with these exact keys:
@@ -303,49 +303,49 @@ function getStylePrompt() {
   if (s==='indian-mba') return `Indian MBA CV. Return JSON:
 {"name":"","email":"","phone":"","location":"City, India","linkedin":"","objective":"2-3 line management objective","education":[{"degree":"MBA","institution":"","year":"","cgpa":"","achievements":["Dean's List"]}],"experience":[{"company":"","role":"","period":"Mon YYYY - Mon YYYY","bullets":["Led team of N achieving X, Y% revenue growth"]}],"internships":[{"company":"","role":"","duration":"2 months","outcome":"outcome"}],"projects":[{"title":"","context":"","outcome":""}],"leadership":["President - Club Name"],"skills":{"analytical":["Excel","Tableau"],"functional":["Strategy"],"soft":["Leadership"]},"certifications":["CFA Level 1"],"achievements":["CAT rank"]}`;
 }
- 
+
 async function generate() {
   const jd = document.getElementById('job-desc').value.trim();
   const profile = document.getElementById('profile-text').value.trim() || localStorage.getItem('career_profile')||'';
   const lang = document.getElementById('jd-lang').value;
   if (!jd) { alert('Please paste a job description first.'); return; }
   if (!profile) { alert('Please add your profile in the Profile tab first.'); switchTab('profile'); return; }
- 
+
   const btn = document.getElementById('gen-btn');
   btn.disabled=true; btn.textContent='Generating...';
   document.getElementById('results').innerHTML='<div class="status-msg"><span class="spinner"></span>Generating your formatted documents — 20 to 40 seconds...</div>';
- 
+
   const langNote = lang==='auto'?'The JD may be in any language. Detect it and generate output in English.'
     :lang==='english'?''
     :`The JD is in ${lang}. Translate it fully and generate output in English.`;
- 
+
   const docRequest = selectedDoc==='both'?'Generate BOTH resume JSON AND cover_letter JSON.'
     :selectedDoc==='cv'?'Generate resume JSON only.'
     :'Generate cover_letter JSON only.';
- 
+
   const styleJson = getStylePrompt();
   const prompt = `You are an expert career consultant. Return ONLY a valid JSON object. No markdown, no code fences, no explanation, no text before or after. Just the raw JSON.
- 
+
 CANDIDATE PROFILE:
 ${profile}
- 
+
 JOB DESCRIPTION:
 ${jd}
- 
+
 ${langNote ? langNote : ''}
- 
+
 TASK: ${docRequest}
- 
+
 Use this JSON structure for the resume:
 ${styleJson}
- 
+
 For cover letter use this structure:
 "cover_letter":{"date":"${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}","hiring_manager":"Hiring Manager","company":"[company from JD]","role":"[role from JD]","paragraphs":["paragraph 1","paragraph 2","paragraph 3"],"sender_name":"[candidate name]"}
- 
+
 Also add: "job_title":"[job title from JD]"
- 
+
 IMPORTANT: Your entire response must be ONE valid JSON object starting with { and ending with }. No other text.`;
- 
+
   try {
     const raw = await callAI(prompt, 4000);
     let parsed;
@@ -376,18 +376,18 @@ IMPORTANT: Your entire response must be ONE valid JSON object starting with { an
   }
   btn.disabled=false; btn.textContent='Generate documents';
 }
- 
+
 function getStyleLabel(s){return{european:'European (Europass)',american:'American / ATS','indian-general':'Indian General','indian-it':'Indian IT','indian-mba':'Indian MBA'}[s]||s;}
 function getBadgeClass(s){return s.startsWith('indian')?'in':s==='american'?'us':'eu';}
 function safeFilename(s){return s.replace(/[^a-zA-Z0-9_\-]/g,'_').replace(/_+/g,'_').slice(0,60);}
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
- 
+
 let _lastResumeData = null;
 let _lastResumeFile = '';
 let _lastCLData = null;
 let _lastCLFile = '';
 let _lastJobTitle = '';
- 
+
 function renderResults(data) {
   let html='';
   const sl=getStyleLabel(selectedStyle);
@@ -410,7 +410,7 @@ function renderResults(data) {
   if (!html) html='<div class="status-msg">No content returned. Please try again.</div>';
   document.getElementById('results').innerHTML=html;
 }
- 
+
 function buildPreview(d) {
   let lines=[];
   if(d.name) lines.push(d.name.toUpperCase());
@@ -421,9 +421,9 @@ function buildPreview(d) {
   if(d.education&&d.education.length){lines.push('EDUCATION');d.education.forEach(e=>lines.push(`${e.degree} — ${e.institution} (${e.year})`));}
   return esc(lines.join('\n'));
 }
- 
+
 function copyPreview(id,btn){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy text',2000);});}
- 
+
 /* PDF BUILDERS */
 function downloadResumePDF(dataStr,filename){
   const d=JSON.parse(dataStr);
@@ -433,7 +433,7 @@ function downloadResumePDF(dataStr,filename){
   else if(selectedStyle==='indian-it') buildIndianITPDF(d,filename);
   else if(selectedStyle==='indian-mba') buildIndianMBAPDF(d,filename);
 }
- 
+
 function newDoc(){return new window.jspdf.jsPDF({unit:'pt',format:'a4'});}
 const PW=595,PH=842,ML=50,MR=50,MT=50;
 function usableW(){return PW-ML-MR;}
@@ -443,7 +443,7 @@ function wrapText(doc,text,x,y,maxW,lh){
   lines.forEach(l=>{y=addPage(doc,y);doc.text(l,x,y);y+=lh;});
   return y;
 }
- 
+
 function buildEuropeanPDF(d,filename){
   const doc=newDoc();
   doc.setFillColor(0,68,130); doc.rect(0,0,PW,105,'F');
@@ -471,7 +471,7 @@ function buildEuropeanPDF(d,filename){
   for(let i=1;i<=tp;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Page ${i} / ${tp}`,PW/2,PH-20,{align:'center'});}
   doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
- 
+
 function buildAmericanPDF(d,filename){
   const doc=newDoc(); let y=MT;
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(20,20,20);
@@ -488,7 +488,7 @@ function buildAmericanPDF(d,filename){
   if(d.certifications&&d.certifications.length){sec('Certifications');d.certifications.forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML,y);y+=12;});}
   doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
- 
+
 function buildIndianGeneralPDF(d,filename){
   const doc=newDoc(); const maroon=[128,0,32];
   doc.setFillColor(...maroon);doc.rect(0,0,PW,68,'F');
@@ -512,7 +512,7 @@ function buildIndianGeneralPDF(d,filename){
   y+=18;doc.text('Date: '+new Date().toLocaleDateString('en-IN'),ML+4,y);doc.text('Signature: ___________________',PW-MR-135,y);
   doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
- 
+
 function buildIndianITPDF(d,filename){
   const doc=newDoc(); const teal=[0,100,100]; const lt=[230,245,245];
   doc.setFillColor(...teal);doc.rect(0,0,PW,78,'F');
@@ -532,7 +532,7 @@ function buildIndianITPDF(d,filename){
   if(d.achievements&&d.achievements.length){sec('Achievements');d.achievements.forEach(a=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+a,ML+4,y);y+=12;});}
   doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
- 
+
 function buildIndianMBAPDF(d,filename){
   const doc=newDoc(); const navy=[0,32,96]; const gold=[180,140,0]; const ln=[235,240,250];
   doc.setFillColor(...navy);doc.rect(0,0,PW,73,'F');
@@ -552,7 +552,7 @@ function buildIndianMBAPDF(d,filename){
   if(d.certifications&&d.certifications.length){sec('Certifications & Achievements');[...(d.certifications||[]),...(d.achievements||[])].forEach(c=>{y=addPage(doc,y);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('• '+c,ML+4,y);y+=12;});}
   doc.save(filename+'.pdf'); recordDownload(d.name,'resume',selectedStyle);
 }
- 
+
 function downloadCoverLetterPDF(clStr,filename,jobTitle){
   const cl=JSON.parse(clStr); const doc=newDoc(); let y=MT;
   const navy=[10,60,130]; const dark=[20,20,20]; const gray=[100,100,100];
@@ -573,24 +573,24 @@ function downloadCoverLetterPDF(clStr,filename,jobTitle){
   doc.setFont('helvetica','bold');doc.text(cl.sender_name||'',ML,y);
   doc.save(filename+'.pdf'); recordDownload(cl.role||jobTitle,'cover_letter',selectedStyle);
 }
- 
- 
+
+
 function triggerResumeDownload() {
   if (!_lastResumeData) { alert('No resume data. Please generate first.'); return; }
   downloadResumePDF(JSON.stringify(_lastResumeData), _lastResumeFile);
 }
- 
+
 function triggerCLDownload() {
   if (!_lastCLData) { alert('No cover letter data. Please generate first.'); return; }
   downloadCoverLetterPDF(JSON.stringify(_lastCLData), _lastCLFile, _lastJobTitle);
 }
- 
+
 function recordDownload(jobTitle,docType,style){
   const h=JSON.parse(localStorage.getItem('dl_history')||'[]');
   h.unshift({jobTitle:jobTitle||'Unknown',docType,style,date:new Date().toISOString()});
   localStorage.setItem('dl_history',JSON.stringify(h.slice(0,200)));
 }
- 
+
 function renderHistory(){
   const h=JSON.parse(localStorage.getItem('dl_history')||'[]');
   const now=new Date();
