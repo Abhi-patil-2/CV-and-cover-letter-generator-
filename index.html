@@ -224,7 +224,7 @@ async function callAI(prompt, maxTokens) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: maxTokens || 4000, responseMimeType: 'application/json' }
+            generationConfig: { maxOutputTokens: maxTokens || 4000 }
           })
         });
         const data = await resp.json();
@@ -366,7 +366,7 @@ IMPORTANT: Your entire response must be ONE valid JSON object starting with { an
       }
     } catch(e) { parsed = {}; }
     if (!parsed || Object.keys(parsed).length === 0) {
-      document.getElementById('results').innerHTML='<div class="status-msg" style="color:#a32d2d">Could not parse AI response. Please try again.</div>';
+      document.getElementById('results').innerHTML='<div class="status-msg" style="color:#a32d2d">Parse failed. Raw response below:</div><div class="result-body" style="margin-top:8px;font-size:11px;word-break:break-all">' + (typeof raw === 'string' ? raw.substring(0,1000) : 'no raw') + '</div>';
       btn.disabled=false; btn.textContent='Generate documents';
       return;
     }
